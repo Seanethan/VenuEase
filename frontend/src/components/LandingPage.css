@@ -1,0 +1,196 @@
+.landing-page {
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #FFFFFF;
+    color: #000000;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Header Styles */
+.landing-header {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E5E5;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.landing-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+}
+
+.logo h1 {
+    color: #000000;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.navigation {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+
+.nav-link {
+    color: #000000;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #666666;
+}
+
+.login-btn, .signup-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.login-btn {
+    background: transparent;
+    color: #000000;
+    border: 1px solid #000000;
+}
+
+.login-btn:hover {
+    background: #000000;
+    color: #FFFFFF;
+}
+
+.signup-btn {
+    background: #000000;
+    color: #FFFFFF;
+}
+
+.signup-btn:hover {
+    background: #333333;
+}
+
+/* Features Section */
+.features-section {
+    padding: 140px 0 80px;
+    background: #FFFFFF;
+    margin-top: 80px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+    text-align: center;
+}
+
+.feature-item h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #000000;
+}
+
+.feature-item p {
+    font-size: 16px;
+    color: #666666;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* About Section */
+.about-section {
+    padding: 80px 0;
+    background: #F8F8F8;
+}
+
+.about-title {
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 48px;
+    color: #000000;
+}
+
+.venue-scheduling {
+    margin-bottom: 48px;
+    text-align: center;
+}
+
+.venue-scheduling:last-child {
+    margin-bottom: 0;
+}
+
+.venue-scheduling h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.venue-scheduling p {
+    font-size: 16px;
+    color: #666666;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Footer */
+.landing-footer {
+    background: #000000;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 24px 0;
+}
+
+.landing-footer p {
+    color: #FFFFFF;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navigation {
+        gap: 20px;
+    }
+    
+    .nav-link {
+        display: none;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+    
+    .features-section {
+        padding: 120px 0 60px;
+        margin-top: 60px;
+    }
+    
+    .about-section {
+        padding: 60px 0;
+    }
+    
+    .about-title {
+        font-size: 28px;
+    }
+}
