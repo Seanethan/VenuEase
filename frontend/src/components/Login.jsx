@@ -1,7 +1,7 @@
 // C:\VenuEase\frontend\src\components\Login.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import login from'./login.css'; // We'll update this CSS file
+import './css/LandingPage.css';
 
 const Login = ({ switchToRegister, switchToLanding, onLogin }) => {
     const [formData, setFormData] = useState({
@@ -41,19 +41,23 @@ const Login = ({ switchToRegister, switchToLanding, onLogin }) => {
 
     return (
         <div className="login-page">
+            {/* Welcome and Brand Name Section (Matching HTML structure) */}
+            <div className='title'>
+                <div className="welcome-text center-text">WELCOME TO</div>
+                <div className="brand-name center-text">VENUEASE</div>
+            </div>
+
             <div className="container">
-                {/* Header Section */}
                 <div className="header">
+                    {/* Back Button - matching HTML exactly */}
                     <button className="back-button" onClick={switchToLanding}>
                         ←
                     </button>
-                    <div className="welcome-text center-text">WELCOME TO</div>
-                    <div className="brand-name center-text">VENUEASE</div>
                 </div>
 
-                {/* Form Container */}
                 <div className="form-container">
                     <form id="loginForm" onSubmit={handleSubmit}>
+                        {/* Error message - React addition */}
                         {error && <div className="auth-error center-text">{error}</div>}
                         
                         <div className="input-group">

@@ -1,7 +1,6 @@
 // C:\VenuEase\frontend\src\components\LandingPage.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import './css/LandingPage.css';
-
+import "./css/LandingPage.css";
 const LandingPage = ({ onLoginClick, onSignUpClick }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const trackRef = useRef(null);
@@ -58,7 +57,7 @@ const LandingPage = ({ onLoginClick, onSignUpClick }) => {
         <div className="landing-page">
             {/* Header - Updated to match HTML design */}
             <header className="header">
-                <div className="container">
+                <div className="container1">
                     <div className="logo">
                         <h1>VenuEase</h1>
                     </div>

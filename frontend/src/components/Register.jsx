@@ -1,10 +1,11 @@
 // C:\VenuEase\frontend\src\components\Register.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import './css/LandingPage.css'; // We'll create this CSS file
 
 const Register = ({ switchToLogin, switchToLanding }) => {
     const [formData, setFormData] = useState({
-        full_Name: '',  // Changed from username
+        full_Name: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -62,89 +63,93 @@ const Register = ({ switchToLogin, switchToLanding }) => {
     };
 
     return (
-        <div className="auth-page">
-            <nav className="auth-nav">
-                <div className="auth-nav-container">
-                    <button className="back-btn" onClick={switchToLanding}>← Back</button>
-                    <div className="auth-brand">VenuEase</div>
-                    <div className="auth-nav-spacer"></div>
-                </div>
-            </nav>
+        <div className="register-page">
+            {/* Title Section */}
+            <div className="title">
+                <div className="welcome-text center-text">WELCOME TO</div>
+                <div className="brand-name center-text">VENUEASE</div>
+            </div>
 
-            <div className="auth-content">
-                <div className="auth-form-container">
-                    <div className="auth-form">
-                        <h2 className="auth-title">Sign Up</h2>
-                        
-                        {error && <div className="auth-error">{error}</div>}
-                        
-                        <form onSubmit={handleSubmit}>
-                            <div className="form-field">
-                                <label className="field-label">Full Name</label>
-                                <input
-                                    type="text"
-                                    name="full_Name"  // Changed from username
-                                    value={formData.full_Name}
-                                    onChange={handleChange}
-                                    className="field-input"
-                                    placeholder="Enter your full name"
-                                    required
-                                />
-                            </div>
-                            
-                            <div className="form-field">
-                                <label className="field-label">Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    className="field-input"
-                                    placeholder="Enter your email"
-                                    required
-                                />
-                            </div>
-                            
-                            <div className="form-field">
-                                <label className="field-label">Password</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    className="field-input"
-                                    placeholder="Create a password (min. 6 characters)"
-                                    required
-                                />
-                            </div>
-                            
-                            <div className="form-field">
-                                <label className="field-label">Confirm Password</label>
-                                <input
-                                    type="password"
-                                    name="confirmPassword"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    className="field-input"
-                                    placeholder="Confirm your password"
-                                    required
-                                />
-                            </div>
-                            
-                            <button 
-                                type="submit" 
-                                className="auth-submit-btn" 
-                                disabled={loading}
-                            >
-                                {loading ? 'Creating Account...' : 'SIGN UP'}
-                            </button>
-                        </form>
-                        
-                        <div className="auth-switch">
-                            <span>Already have an account? </span>
-                            <button onClick={switchToLogin} className="switch-link">Log-in</button>
+            {/* Main Container */}
+            <div className="container">
+                <div className="header">
+                    {/* Back Button */}
+                    <button className="back-button" onClick={switchToLanding}>
+                        ←
+                    </button>
+                </div>
+
+                <div className="form-container">
+                    {error && <div className="auth-error center-text">{error}</div>}
+                    
+                    <form id="signupForm" onSubmit={handleSubmit}>
+                        <div className="input-group">
+                            <input 
+                                type="text" 
+                                name="full_Name"
+                                value={formData.full_Name}
+                                onChange={handleChange}
+                                placeholder="Full Name" 
+                                required 
+                                className="center-block"
+                            />
                         </div>
-                    </div>
+
+                        <div className="input-group">
+                            <input 
+                                type="email" 
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="Email" 
+                                required 
+                                className="center-block"
+                            />
+                        </div>
+
+                        <div className="input-group">
+                            <input 
+                                type="password" 
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Password" 
+                                required 
+                                className="center-block"
+                            />
+                        </div>
+
+                        <div className="input-group">
+                            <input 
+                                type="password" 
+                                name="confirmPassword"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                placeholder="Confirm Password" 
+                                required 
+                                className="center-block"
+                            />
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            className="btn center-block" 
+                            disabled={loading}
+                        >
+                            {loading ? 'Creating Account...' : 'SIGN-UP'}
+                        </button>
+
+                        <div className="login-link center-text">
+                            Already have an account? <br/>
+                            <button 
+                                type="button" 
+                                onClick={switchToLogin} 
+                                className="switch-link"
+                            >
+                                Log-in
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
