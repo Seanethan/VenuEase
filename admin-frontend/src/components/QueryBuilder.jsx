@@ -1,64 +1,124 @@
-import React from 'react';
-import './QueryBuilder.css';
+import React, { useState } from 'react';
 
-const QueryBuilder = ({ admin, onBack, onLogout }) => {
-    return (
-        <div className="query-builder-page">
-            <header className="admin-header">
-                <div className="admin-header-content">
-                    <div className="header-actions">
-                        <button className="back-btn" onClick={onBack}>← Back to Dashboard</button>
-                        <h1>Database Query Builder</h1>
-                    </div>
-                    <button className="logout-btn" onClick={onLogout}>Logout</button>
-                </div>
-            </header>
+const QueryBuilder = () => {
+  const [sqlQuery, setSqlQuery] = useState('');
+  const [queryResults, setQueryResults] = useState('No results yet...');
 
-            <div className="query-builder-content">
-                <div className="query-builder-info">
-                    <h2>SQL Query Builder</h2>
-                    <p>Execute custom SQL queries on the VenuEase database</p>
-                </div>
+  const handleRunQuery = () => {
+    if (!sqlQuery.trim()) {
+      setQueryResults('<p style="color: #8e1c0f;">Please enter a SQL query first.</p>');
+      return;
+    }
+    
+    const query = sqlQuery.toLowerCase();
+    let result = '';
+    
+    if (query.includes('select') && query.includes('users')) {
+      result = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <tr style="background: #f0f0f0;">
+            <th style="padding: 8px; border: 1px solid #ddd;">ID</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">001</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Sean de Lara</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">delara.sean@gmail.com</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Active</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">002</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Jenat Iguod</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">iguod.jenat@gmail.com</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Active</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">003</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Elixer Alcoba</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">alcobaelixer@gmail.com</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Active</td>
+          </tr>
+        </table>
+        <p style="color: #1f7a2f; margin-top: 10px;">Query executed successfully. 3 rows returned.</p>
+      `;
+    } else if (query.includes('select') && query.includes('venues')) {
+      result = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <tr style="background: #f0f0f0;">
+            <th style="padding: 8px; border: 1px solid #ddd;">venue_ID</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">venue_Name</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Address</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Capacity</th>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">V001</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Sunset Hall</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Manila</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">250</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">V002</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Blue Lagoon Venue</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Quezon City</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">380</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">V003</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Royal Pavilion</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">Pasig</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">500</td>
+          </tr>
+        </table>
+        <p style="color: #1f7a2f; margin-top: 10px;">Query executed successfully. 3 rows returned.</p>
+      `;
+    } else if (query.includes('update') || query.includes('insert') || query.includes('delete')) {
+      result = `<p style="color: #1f7a2f;">Query executed successfully. 1 row affected.</p>`;
+    } else {
+      result = `<p style="color: #1f7a2f;">Query executed successfully. No results to display.</p>`;
+    }
+    
+    setQueryResults(result);
+  };
 
-                <div className="coming-soon">
-                    <div className="coming-soon-icon">🔧</div>
-                    <h3>Query Builder Coming Soon</h3>
-                    <p>This feature is currently under development and will be available in the next update.</p>
-                    <p>For now, you can manage users and view system statistics from the dashboard.</p>
-                </div>
+  const handleClearQuery = () => {
+    setSqlQuery('');
+    setQueryResults('No results yet...');
+  };
 
-                <div className="database-tables">
-                    <h3>Available Database Tables</h3>
-                    <div className="tables-grid">
-                        <div className="table-card">
-                            <h4>CUSTOMERS</h4>
-                            <p>Customer accounts and information</p>
-                        </div>
-                        <div className="table-card">
-                            <h4>ADMIN</h4>
-                            <p>Staff and administrator accounts</p>
-                        </div>
-                        <div className="table-card">
-                            <h4>VENUE</h4>
-                            <p>Venue listings and details</p>
-                        </div>
-                        <div className="table-card">
-                            <h4>EVENTS</h4>
-                            <p>Event information and types</p>
-                        </div>
-                        <div className="table-card">
-                            <h4>BOOKING</h4>
-                            <p>Booking records and reservations</p>
-                        </div>
-                        <div className="table-card">
-                            <h4>PAYMENT</h4>
-                            <p>Payment transactions and history</p>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <section className="venue-ease-page">
+      <h2>QUERY EDITOR</h2>
+
+      <div className="venue-ease-query-box">
+        {/* SQL Analyzer */}
+        <div className="venue-ease-query-section">
+          <div className="venue-ease-query-header">
+            SQL Analyzer
+            <div>
+              <button className="venue-ease-query-btn" onClick={handleRunQuery}>Run</button>
+              <button className="venue-ease-query-btn" onClick={handleClearQuery}>Clear</button>
             </div>
+          </div>
+          <div className="venue-ease-query-content">
+            <textarea 
+              className="venue-ease-textarea"
+              value={sqlQuery}
+              onChange={(e) => setSqlQuery(e.target.value)}
+              placeholder="Write SQL query here..."
+            />
+          </div>
         </div>
-    );
+
+        {/* Results */}
+        <div className="venue-ease-query-section">
+          <div className="venue-ease-query-header">Results</div>
+          <div className="venue-ease-query-content" dangerouslySetInnerHTML={{ __html: queryResults }} />
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default QueryBuilder;

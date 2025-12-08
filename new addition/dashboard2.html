@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VenueEase Dashboard</title>
+    <title>VenueEase Admin Dashboard</title>
     <style>
         body {
             margin: 0;
@@ -35,18 +35,21 @@
             text-decoration: none;
             color: #000;
             font-weight: bold;
+            border-radius: 8px;
         }
 
+        /* Sidebar hover – underline only */
         .nav a:hover {
-            background: #d2b39c;
-            color: #fff;
-            border-radius: 8px;
+            text-decoration: underline;
+            background: none !important;
+            color: inherit !important;
         }
 
+        /* Active tab – underline only */
         .nav a.active {
-            background: #b98e75;
-            color: #fff;
-            border-radius: 8px;
+            text-decoration: underline;
+            background: none !important;
+            color: inherit !important;
         }
 
         .logout {
@@ -58,26 +61,32 @@
             color: #fff;
             border-radius: 20px;
             text-decoration: none;
-            display: block;
             width: calc(100% - 40px);
             text-align: center;
             box-sizing: border-box;
         }
 
-        /* Main Page */
+        /* Main */
         .main {
             margin-left: 240px;
             padding: 20px;
         }
 
-        /* USER MANAGEMENT TABLE */
+        .separator {
+            width: 100%;
+            height: 2px;
+            background: #b98e75;
+            margin: 20px 0;
+        }
+
+        /* Table General */
         table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         th, td {
@@ -87,14 +96,22 @@
         }
 
         th {
-            background: #b98e75;
-            color: white;
+            background: #fff;
+            font-weight: bold;
         }
 
         tr:last-child td {
             border-bottom: none;
         }
 
+        /* Checkbox column */
+        th:first-child,
+        td:first-child {
+            width: 40px;
+            text-align: center;
+        }
+
+        /* Button */
         .btn {
             padding: 6px 14px;
             border: none;
@@ -104,15 +121,27 @@
             font-weight: bold;
         }
 
-        .ban { background:#8e1c0f; }
-        .unban { background:#1f7a2f; }
-        .warn-icon { color:#c07e00; font-size:18px; }
+        .ban { background: #8e1c0f; }
+        .unban { background: #1f7a2f; }
 
+        /* EDIT button */
+        .edit-btn {
+            background: #1f7a2f;
+            border-radius: 18px;
+            padding: 6px 14px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Action Buttons */
         .actions {
             margin-top: 20px;
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
         }
+
         .actions button {
             padding: 10px 20px;
             border-radius: 20px;
@@ -123,7 +152,22 @@
             font-weight: bold;
         }
 
-        /* DASHBOARD */
+        /* Search Row */
+        .search-row {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px;
+            background: #b98e75;
+        }
+
+        .search-row input {
+            width: 260px;
+            padding: 8px;
+            border: none;
+            border-radius: 25px !important;
+        }
+
+        /* Dashboard cards */
         .card-container {
             display: flex;
             gap: 20px;
@@ -148,118 +192,376 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* Chart placeholder */
         .chart-placeholder {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.2);
             height: 200px;
             border-radius: 8px;
+            margin-top: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Venue Box */
+        .venue-box {
+            background: #AC8671;
+            padding: 20px;
+            border-radius: 10px;
             margin-top: 10px;
         }
 
-        /* Page navigation */
-        .page-nav {
-            display: none;
+        /* Title + Button Layout */
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding: 10px;
-            }
-            
-            .main {
-                margin-left: 0;
-            }
-            
-            .card-container {
-                flex-direction: column;
-            }
-            
-            .card {
-                width: auto;
-            }
-            
-            .logout {
-                position: relative;
-                bottom: auto;
-                left: auto;
-                margin-top: 20px;
-            }
+        .add-btn {
+            padding: 10px 18px;
+            background: #6E4F3F;
+            color: white;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* QUERY EDITOR */
+        .query-box {
+            background: #AC8671;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .query-section {
+            background: #ffffff;
+            border: 3px solid #6E4F3F;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .query-header {
+            background: #6E4F3F;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .query-header button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: white;
+            color: #6E4F3F;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .query-content {
+            padding: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            resize: none;
+            border: 1px solid #6E4F3F;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        /* NEW VENUE FORM STYLES */
+        .form-container {
+            background: #b38b6d;
+            padding: 30px;
+            border-radius: 10px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .form-container h1 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .top-section {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .image-upload {
+            flex: 1;
+        }
+
+        .image-box {
+            width: 100%;
+            height: 200px;
+            background: #d2a48b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .image-box:hover {
+            background: #c4947b;
+        }
+
+        .image-box p {
+            margin: 10px 0 0 0;
+            font-size: 16px;
+        }
+
+        .inputs {
+            flex: 2;
+        }
+
+        /* INLINE FORM STYLES */
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .form-row label {
+            min-width: 80px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            flex: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            box-sizing: border-box;
+        }
+
+        .form-row textarea {
+            height: 60px;
+            resize: vertical;
+        }
+
+        /* PRICE ROW - Special styling for inline price input and dropdown */
+        .price-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .price-row label {
+            min-width: 80px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .price-input-container {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .price-input-container input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            box-sizing: border-box;
+        }
+
+        .price-input-container select {
+            flex: 0 0 120px;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            box-sizing: border-box;
+        }
+
+        .description textarea {
+            width: 100%;
+            height: 150px;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            resize: vertical;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .clear-btn {
+            background: #ddd;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .add-btn-form, .update-btn-form {
+            background: #2ecc71;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+        }
+
+        .cancel-btn {
+            background: #e74c3c;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+        }
+
+        .clear-btn:hover {
+            background: #ccc;
+        }
+
+        .add-btn-form:hover, .update-btn-form:hover {
+            background: #27ae60;
+        }
+
+        .cancel-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Hide form by default */
+        #new-venue-form, #edit-venue-form {
+            display: none;
+        }
+        
+        /* Back button */
+        .back-btn {
+            margin-bottom: 15px;
+            background: #6E4F3F;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
         }
     </style>
 </head>
+
 <body>
+
+    <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="logo">VenueEase</div>
         <div class="nav">
             <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
             <a href="#" class="nav-link" data-page="users">Users</a>
+            <a href="#" class="nav-link" data-page="query">Query Editor</a>
+            <a href="#" class="nav-link" data-page="venues">Venues</a>
         </div>
         <a class="logout" href="#">Log Out</a>
     </div>
 
+    <!-- MAIN CONTENT -->
     <div class="main">
-        <!-- Dashboard Page -->
+
+        <!-- DASHBOARD PAGE -->
         <section id="dashboard-page" class="page">
             <h2>DASHBOARD</h2>
+
             <div class="card-container">
-                <div class="card"> 
+                <div class="card">
                     <h3>Total Active Users</h3>
                     <p>106</p>
                 </div>
-                <div class="card"> 
+                <div class="card">
                     <h3>Registered Venues</h3>
                     <p>58</p>
                 </div>
-                <div class="card"> 
+                <div class="card">
                     <h3>Avg. Visit Time</h3>
                     <p>123.45</p>
                 </div>
             </div>
 
+            <div class="separator"></div>
+
             <div class="chart-box">
                 <h3>Monthly Active Users</h3>
-                <div class="chart-placeholder">
-                    <p>Chart visualization would appear here</p>
-                </div>
+                <div class="chart-placeholder">Chart visualization here</div>
             </div>
         </section>
 
-        <!-- Users Page -->
-        <section id="users-page" class="page" style="display: none;">
+        <!-- USERS PAGE -->
+        <section id="users-page" class="page" style="display:none;">
             <h2>USER MANAGEMENT</h2>
+
+            <!-- Search Row -->
+            <div class="search-row">
+                <input type="text" placeholder="Search user...">
+            </div>
 
             <table>
                 <tr>
+                    <th><input type="checkbox"></th>
                     <th>ID</th>
-                    <th>User</th>
+                    <th>Customer</th>
                     <th>Email</th>
-                    <th>Report</th>
+                    <th>Bookings</th>
                     <th>Log</th>
                 </tr>
+
                 <tr>
-                    <td>001</td><td>Sean de Lara</td><td>delara.sean@gmail.com</td><td>0 Warnings</td><td><button class="btn ban">BAN</button></td>
+                    <td><input type="checkbox"></td>
+                    <td>001</td>
+                    <td>Sean de Lara</td>
+                    <td>delara.sean@gmail.com</td>
+                    <td>0 Warnings</td>
+                    <td><button class="btn ban">BAN</button></td>
                 </tr>
+
                 <tr>
-                    <td>002</td><td>Jenat Iguod</td><td>iguod.jenat@gmail.com</td><td><span class="warn-icon">⚠️</span> 10 Warnings</td><td><button class="btn unban">UN-BAN</button></td>
+                    <td><input type="checkbox"></td>
+                    <td>002</td>
+                    <td>Jenat Iguod</td>
+                    <td>iguod.jenat@gmail.com</td>
+                    <td>10 Bookings</td>
+                    <td><button class="btn unban">UN-BAN</button></td>
                 </tr>
+
                 <tr>
-                    <td>003</td><td>Elixer Alcoba</td><td>alcobaelixer@gmail.com</td><td>9 Warnings</td><td><button class="btn ban">BAN</button></td>
-                </tr>
-                <tr>
-                    <td>004</td><td>Senior Paul</td><td>lincollo.paul@gmail.com</td><td>0 Warnings</td><td><button class="btn ban">BAN</button></td>
-                </tr>
-                <tr>
-                    <td>005</td><td>Joalfer Formento</td><td>formento.joshua@gmail.com</td><td>2 Warnings</td><td><button class="btn ban">BAN</button></td>
-                </tr>
-                <tr>
-                    <td>006</td><td>Luis Balagtas</td><td>lulu.luis@gmail.com</td><td>0 Warnings</td><td><button class="btn ban">BAN</button></td>
+                    <td><input type="checkbox"></td>
+                    <td>003</td>
+                    <td>Elixer Alcoba</td>
+                    <td>alcobaelixer@gmail.com</td>
+                    <td>9 Bookings</td>
+                    <td><button class="btn ban">BAN</button></td>
                 </tr>
             </table>
 
@@ -268,74 +570,674 @@
                 <button>BAN MULTIPLE</button>
             </div>
         </section>
+
+        <!-- QUERY EDITOR PAGE -->
+        <section id="query-page" class="page" style="display:none;">
+            <h2>QUERY EDITOR</h2>
+
+            <div class="query-box">
+
+                <!-- SQL ANALYZER -->
+                <div class="query-section">
+                    <div class="query-header">
+                        SQL Analyzer
+                        <div>
+                            <button id="runBtn">Run</button>
+                            <button id="clearBtn">Clear</button>
+                        </div>
+                    </div>
+                    <div class="query-content">
+                        <textarea id="sqlTextarea" placeholder="Write SQL query here..."></textarea>
+                    </div>
+                </div>
+
+                <!-- RESULTS -->
+                <div class="query-section">
+                    <div class="query-header">Results</div>
+                    <div class="query-content" id="resultsContent" style="height:180px;">
+                        <p>No results yet...</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- VENUES PAGE -->
+        <section id="venues-page" class="page" style="display:none;">
+            
+            <div class="title-row">
+                <h2>REGISTERED VENUES</h2>
+                <button class="add-btn" id="show-add-venue-btn">Add Venues +</button>
+            </div>
+
+            <!-- Back button for edit mode -->
+            <button class="back-btn" id="backFromEditBtn" style="display:none;">← Back to Venues List</button>
+
+            <!-- New Venue Form (Hidden by default) -->
+            <div id="new-venue-form">
+                <div class="form-container">
+                    <h1>CREATING NEW VENUE</h1>
+
+                    <div class="top-section">
+                        <div class="image-upload">
+                            <div class="image-box" id="imageUploadBox">
+                                <span>+</span>
+                                <p>Add Image</p>
+                            </div>
+                        </div>
+
+                        <div class="inputs">
+                            <!-- Name Field - Inline -->
+                            <div class="form-row">
+                                <label>Name:</label>
+                                <input type="text" id="venueName" />
+                            </div>
+
+                            <!-- Contact Field - Inline -->
+                            <div class="form-row">
+                                <label>Contact:</label>
+                                <input type="text" id="venueContact" />
+                            </div>
+
+                            <!-- Email Field - Inline -->
+                            <div class="form-row">
+                                <label>Email:</label>
+                                <input type="email" id="venueEmail" />
+                            </div>
+
+                            <!-- Price Field - Inline with dropdown -->
+                            <div class="price-row">
+                                <label>Price:</label>
+                                <div class="price-input-container">
+                                    <input type="number" id="venuePrice" placeholder="Enter price" />
+                                    <select id="priceType">
+                                        <option>Hourly</option>
+                                        <option>Daily</option>
+                                        <option>Weekly</option>
+                                        <option>Monthly</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Capacity Field - Inline -->
+                            <div class="form-row">
+                                <label>Capacity:</label>
+                                <input type="number" id="venueCapacity" />
+                            </div>
+
+                            <!-- Address Field - Inline -->
+                            <div class="form-row">
+                                <label>Address:</label>
+                                <textarea id="venueAddress" class="address"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="description">
+                        <textarea placeholder="Write about your venue..." id="venueDescription"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="clear-btn" id="clearFormBtn">Clear</button>
+                        <button class="add-btn-form" id="addVenueBtn">Add Venue</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Venue Form (Hidden by default) -->
+            <div id="edit-venue-form">
+                <div class="form-container">
+                    <h1 id="editFormTitle">EDITING VENUE</h1>
+
+                    <div class="top-section">
+                        <div class="image-upload">
+                            <div class="image-box" id="editImageUploadBox">
+                                <span>+</span>
+                                <p>Update Image</p>
+                            </div>
+                        </div>
+
+                        <div class="inputs">
+                            <!-- Name Field - Inline -->
+                            <div class="form-row">
+                                <label>Name:</label>
+                                <input type="text" id="editVenueName" />
+                            </div>
+
+                            <!-- Contact Field - Inline -->
+                            <div class="form-row">
+                                <label>Contact:</label>
+                                <input type="text" id="editVenueContact" />
+                            </div>
+
+                            <!-- Email Field - Inline -->
+                            <div class="form-row">
+                                <label>Email:</label>
+                                <input type="email" id="editVenueEmail" />
+                            </div>
+
+                            <!-- Price Field - Inline with dropdown -->
+                            <div class="price-row">
+                                <label>Price:</label>
+                                <div class="price-input-container">
+                                    <input type="number" id="editVenuePrice" placeholder="Enter price" />
+                                    <select id="editPriceType">
+                                        <option>Hourly</option>
+                                        <option>Daily</option>
+                                        <option>Weekly</option>
+                                        <option>Monthly</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Capacity Field - Inline -->
+                            <div class="form-row">
+                                <label>Capacity:</label>
+                                <input type="number" id="editVenueCapacity" />
+                            </div>
+
+                            <!-- Address Field - Inline -->
+                            <div class="form-row">
+                                <label>Address:</label>
+                                <textarea id="editVenueAddress" class="address"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="description">
+                        <textarea placeholder="Write about your venue..." id="editVenueDescription"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="cancel-btn" id="cancelEditBtn">Cancel</button>
+                        <button class="update-btn-form" id="updateVenueBtn">Update Venue</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Existing Venues Table -->
+            <div id="venues-table" class="venue-box">
+                <table id="venuesList">
+                    <tr>
+                        <th>venue_ID</th>
+                        <th>venue_Name</th>
+                        <th>Address</th>
+                        <th>Capacity</th>
+                        <th></th>
+                    </tr>
+
+                    <tr data-id="V001" data-contact="09123456789" data-email="sunset@example.com" data-price="1500" data-price-type="Hourly" data-description="Beautiful sunset view venue with modern amenities.">
+                        <td>V001</td>
+                        <td>Sunset Hall</td>
+                        <td>Manila</td>
+                        <td>250</td>
+                        <td><button class="edit-btn" data-venue-id="V001">EDIT</button></td>
+                    </tr>
+
+                    <tr data-id="V002" data-contact="09234567890" data-email="bluelagoon@example.com" data-price="2500" data-price-type="Hourly" data-description="Luxurious venue with lagoon view and premium facilities.">
+                        <td>V002</td>
+                        <td>Blue Lagoon Venue</td>
+                        <td>Quezon City</td>
+                        <td>380</td>
+                        <td><button class="edit-btn" data-venue-id="V002">EDIT</button></td>
+                    </tr>
+
+                    <tr data-id="V003" data-contact="09345678901" data-email="royal@example.com" data-price="5000" data-price-type="Daily" data-description="Royal treatment with premium services and luxurious ambiance.">
+                        <td>V003</td>
+                        <td>Royal Pavilion</td>
+                        <td>Pasig</td>
+                        <td>500</td>
+                        <td><button class="edit-btn" data-venue-id="V003">EDIT</button></td>
+                    </tr>
+                </table>
+            </div>
+
+        </section>
+
     </div>
 
     <script>
-        // Page navigation functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            // Venue data storage for editing
+            let venuesData = {
+                'V001': {
+                    name: 'Sunset Hall',
+                    contact: '09123456789',
+                    email: 'sunset@example.com',
+                    price: '1500',
+                    priceType: 'Hourly',
+                    capacity: '250',
+                    address: 'Manila',
+                    description: 'Beautiful sunset view venue with modern amenities.'
+                },
+                'V002': {
+                    name: 'Blue Lagoon Venue',
+                    contact: '09234567890',
+                    email: 'bluelagoon@example.com',
+                    price: '2500',
+                    priceType: 'Hourly',
+                    capacity: '380',
+                    address: 'Quezon City',
+                    description: 'Luxurious venue with lagoon view and premium facilities.'
+                },
+                'V003': {
+                    name: 'Royal Pavilion',
+                    contact: '09345678901',
+                    email: 'royal@example.com',
+                    price: '5000',
+                    priceType: 'Daily',
+                    capacity: '500',
+                    address: 'Pasig',
+                    description: 'Royal treatment with premium services and luxurious ambiance.'
+                }
+            };
+
+            let editingVenueId = null;
+
+            /* PAGE SWITCHER */
             const navLinks = document.querySelectorAll('.nav-link');
             const pages = document.querySelectorAll('.page');
-            
+
             navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
+                link.addEventListener('click', function (e) {
                     e.preventDefault();
-                    
-                    // Remove active class from all links
                     navLinks.forEach(l => l.classList.remove('active'));
-                    
-                    // Add active class to clicked link
                     this.classList.add('active');
+
+                    pages.forEach(page => page.style.display = 'none');
+                    document.getElementById(this.dataset.page + "-page").style.display = "block";
                     
-                    // Hide all pages
-                    pages.forEach(page => {
-                        page.style.display = 'none';
+                    // When switching to venues page, show the table and hide forms
+                    if (this.dataset.page === 'venues') {
+                        showVenuesTable();
+                    }
+                });
+            });
+
+            function showVenuesTable() {
+                document.getElementById('venues-table').style.display = 'block';
+                document.getElementById('new-venue-form').style.display = 'none';
+                document.getElementById('edit-venue-form').style.display = 'none';
+                document.getElementById('backFromEditBtn').style.display = 'none';
+            }
+
+            function showAddVenueForm() {
+                document.getElementById('venues-table').style.display = 'none';
+                document.getElementById('new-venue-form').style.display = 'block';
+                document.getElementById('edit-venue-form').style.display = 'none';
+                document.getElementById('backFromEditBtn').style.display = 'none';
+            }
+
+            function showEditVenueForm() {
+                document.getElementById('venues-table').style.display = 'none';
+                document.getElementById('new-venue-form').style.display = 'none';
+                document.getElementById('edit-venue-form').style.display = 'block';
+                document.getElementById('backFromEditBtn').style.display = 'block';
+            }
+
+            /* BAN - UNBAN TOGGLE */
+            document.addEventListener("click", function (e) {
+                if (e.target.classList.contains("ban")) {
+                    alert("User has been banned");
+                    e.target.textContent = "UN-BAN";
+                    e.target.classList.remove("ban");
+                    e.target.classList.add("unban");
+                }
+                else if (e.target.classList.contains("unban")) {
+                    alert("User has been unbanned");
+                    e.target.textContent = "BAN";
+                    e.target.classList.remove("unban");
+                    e.target.classList.add("ban");
+                }
+            });
+
+            /* QUERY EDITOR FUNCTIONALITY */
+            const sqlTextarea = document.getElementById('sqlTextarea');
+            const runBtn = document.getElementById('runBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const resultsContent = document.getElementById('resultsContent');
+
+            runBtn.addEventListener('click', function() {
+                const query = sqlTextarea.value.trim();
+                if (!query) {
+                    resultsContent.innerHTML = '<p style="color: #8e1c0f;">Please enter a SQL query first.</p>';
+                    return;
+                }
+
+                // Mock query results based on common SQL patterns
+                let result = '';
+                
+                if (query.toLowerCase().includes('select') && query.toLowerCase().includes('users')) {
+                    result = `
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr style="background: #f0f0f0;">
+                                <th style="padding: 8px; border: 1px solid #ddd;">ID</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">001</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Sean de Lara</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">delara.sean@gmail.com</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Active</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">002</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Jenat Iguod</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">iguod.jenat@gmail.com</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Active</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">003</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Elixer Alcoba</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">alcobaelixer@gmail.com</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Active</td>
+                            </tr>
+                        </table>
+                        <p style="color: #1f7a2f; margin-top: 10px;">Query executed successfully. 3 rows returned.</p>
+                    `;
+                } else if (query.toLowerCase().includes('select') && query.toLowerCase().includes('venues')) {
+                    result = `
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr style="background: #f0f0f0;">
+                                <th style="padding: 8px; border: 1px solid #ddd;">venue_ID</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">venue_Name</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Address</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Capacity</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">V001</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Sunset Hall</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Manila</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">250</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">V002</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Blue Lagoon Venue</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Quezon City</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">380</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">V003</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Royal Pavilion</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">Pasig</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">500</td>
+                            </tr>
+                        </table>
+                        <p style="color: #1f7a2f; margin-top: 10px;">Query executed successfully. 3 rows returned.</p>
+                    `;
+                } else if (query.toLowerCase().includes('update') || query.toLowerCase().includes('insert') || query.toLowerCase().includes('delete')) {
+                    result = `<p style="color: #1f7a2f;">Query executed successfully. 1 row affected.</p>`;
+                } else {
+                    result = `<p style="color: #1f7a2f;">Query executed successfully. No results to display.</p>`;
+                }
+
+                resultsContent.innerHTML = result;
+            });
+
+            clearBtn.addEventListener('click', function() {
+                sqlTextarea.value = '';
+                resultsContent.innerHTML = '<p>No results yet...</p>';
+            });
+
+            /* VENUE FORM FUNCTIONALITY */
+            const showAddVenueBtn = document.getElementById('show-add-venue-btn');
+            const clearFormBtn = document.getElementById('clearFormBtn');
+            const addVenueBtn = document.getElementById('addVenueBtn');
+            const imageUploadBox = document.getElementById('imageUploadBox');
+            const editImageUploadBox = document.getElementById('editImageUploadBox');
+            const backFromEditBtn = document.getElementById('backFromEditBtn');
+            const cancelEditBtn = document.getElementById('cancelEditBtn');
+            const updateVenueBtn = document.getElementById('updateVenueBtn');
+
+            // Show add form when "Add Venues +" button is clicked
+            showAddVenueBtn.addEventListener('click', showAddVenueForm);
+
+            // Clear form
+            clearFormBtn.addEventListener('click', function() {
+                document.getElementById('venueName').value = '';
+                document.getElementById('venueContact').value = '';
+                document.getElementById('venueEmail').value = '';
+                document.getElementById('venuePrice').value = '';
+                document.getElementById('priceType').selectedIndex = 0;
+                document.getElementById('venueCapacity').value = '';
+                document.getElementById('venueAddress').value = '';
+                document.getElementById('venueDescription').value = '';
+                alert('Form cleared!');
+            });
+
+            // Add new venue
+            addVenueBtn.addEventListener('click', function() {
+                const name = document.getElementById('venueName').value.trim();
+                const contact = document.getElementById('venueContact').value.trim();
+                const email = document.getElementById('venueEmail').value.trim();
+                const price = document.getElementById('venuePrice').value.trim();
+                const priceType = document.getElementById('priceType').value;
+                const capacity = document.getElementById('venueCapacity').value.trim();
+                const address = document.getElementById('venueAddress').value.trim();
+                const description = document.getElementById('venueDescription').value.trim();
+
+                // Validate required fields
+                if (!name || !contact || !email || !price || !capacity || !address) {
+                    alert('Please fill in all required fields!');
+                    return;
+                }
+
+                // Generate new venue ID
+                const existingVenues = document.querySelectorAll('#venuesList tr');
+                const lastId = existingVenues[existingVenues.length - 1].cells[0].textContent;
+                const lastNumber = parseInt(lastId.replace('V', ''));
+                const newId = 'V' + String(lastNumber + 1).padStart(3, '0');
+
+                // Add new row to table
+                const newRow = document.createElement('tr');
+                newRow.setAttribute('data-id', newId);
+                newRow.setAttribute('data-contact', contact);
+                newRow.setAttribute('data-email', email);
+                newRow.setAttribute('data-price', price);
+                newRow.setAttribute('data-price-type', priceType);
+                newRow.setAttribute('data-description', description);
+                
+                newRow.innerHTML = `
+                    <td>${newId}</td>
+                    <td>${name}</td>
+                    <td>${address}</td>
+                    <td>${capacity}</td>
+                    <td><button class="edit-btn" data-venue-id="${newId}">EDIT</button></td>
+                `;
+                document.getElementById('venuesList').appendChild(newRow);
+
+                // Add to venuesData object
+                venuesData[newId] = {
+                    name: name,
+                    contact: contact,
+                    email: email,
+                    price: price,
+                    priceType: priceType,
+                    capacity: capacity,
+                    address: address,
+                    description: description
+                };
+
+                // Show success message
+                alert(`Venue "${name}" added successfully!`);
+
+                // Clear form
+                document.getElementById('venueName').value = '';
+                document.getElementById('venueContact').value = '';
+                document.getElementById('venueEmail').value = '';
+                document.getElementById('venuePrice').value = '';
+                document.getElementById('priceType').selectedIndex = 0;
+                document.getElementById('venueCapacity').value = '';
+                document.getElementById('venueAddress').value = '';
+                document.getElementById('venueDescription').value = '';
+
+                // Show table
+                showVenuesTable();
+            });
+
+            // Edit venue functionality
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('edit-btn') && e.target.dataset.venueId) {
+                    editingVenueId = e.target.dataset.venueId;
+                    const venueData = venuesData[editingVenueId];
+                    
+                    if (venueData) {
+                        // Update form title with venue name
+                        document.getElementById('editFormTitle').textContent = `EDITING VENUE "${venueData.name}"`;
+                        
+                        // Fill form with existing data
+                        document.getElementById('editVenueName').value = venueData.name;
+                        document.getElementById('editVenueContact').value = venueData.contact;
+                        document.getElementById('editVenueEmail').value = venueData.email;
+                        document.getElementById('editVenuePrice').value = venueData.price;
+                        
+                        // Set price type dropdown
+                        const priceTypeSelect = document.getElementById('editPriceType');
+                        for (let i = 0; i < priceTypeSelect.options.length; i++) {
+                            if (priceTypeSelect.options[i].value === venueData.priceType) {
+                                priceTypeSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        document.getElementById('editVenueCapacity').value = venueData.capacity;
+                        document.getElementById('editVenueAddress').value = venueData.address;
+                        document.getElementById('editVenueDescription').value = venueData.description;
+                        
+                        // Show edit form
+                        showEditVenueForm();
+                    }
+                }
+            });
+
+            // Back from edit
+            backFromEditBtn.addEventListener('click', showVenuesTable);
+            
+            // Cancel edit
+            cancelEditBtn.addEventListener('click', showVenuesTable);
+
+            // Update venue
+            updateVenueBtn.addEventListener('click', function() {
+                if (!editingVenueId) return;
+
+                const name = document.getElementById('editVenueName').value.trim();
+                const contact = document.getElementById('editVenueContact').value.trim();
+                const email = document.getElementById('editVenueEmail').value.trim();
+                const price = document.getElementById('editVenuePrice').value.trim();
+                const priceType = document.getElementById('editPriceType').value;
+                const capacity = document.getElementById('editVenueCapacity').value.trim();
+                const address = document.getElementById('editVenueAddress').value.trim();
+                const description = document.getElementById('editVenueDescription').value.trim();
+
+                // Validate required fields
+                if (!name || !contact || !email || !price || !capacity || !address) {
+                    alert('Please fill in all required fields!');
+                    return;
+                }
+
+                // Update table row
+                const venueRows = document.querySelectorAll('#venuesList tr');
+                venueRows.forEach(row => {
+                    if (row.cells[0]?.textContent === editingVenueId) {
+                        row.cells[1].textContent = name;
+                        row.cells[2].textContent = address;
+                        row.cells[3].textContent = capacity;
+                        
+                        // Update data attributes
+                        row.setAttribute('data-contact', contact);
+                        row.setAttribute('data-email', email);
+                        row.setAttribute('data-price', price);
+                        row.setAttribute('data-price-type', priceType);
+                        row.setAttribute('data-description', description);
+                    }
+                });
+
+                // Update venuesData object
+                venuesData[editingVenueId] = {
+                    name: name,
+                    contact: contact,
+                    email: email,
+                    price: price,
+                    priceType: priceType,
+                    capacity: capacity,
+                    address: address,
+                    description: description
+                };
+
+                // Show success message
+                alert(`Venue "${name}" updated successfully!`);
+
+                // Show table
+                showVenuesTable();
+            });
+
+            // Image upload functionality (mock)
+            imageUploadBox.addEventListener('click', function() {
+                alert('Image upload functionality would open a file dialog in a real application.');
+            });
+
+            editImageUploadBox.addEventListener('click', function() {
+                alert('Image upload functionality would open a file dialog in a real application.');
+            });
+
+            /* USER MANAGEMENT CHECKBOXES */
+            document.querySelectorAll('#users-page table input[type="checkbox"]').forEach((checkbox, index) => {
+                if (index === 0) return; // Skip header checkbox
+                
+                checkbox.addEventListener('change', function() {
+                    const userId = this.closest('tr').cells[1].textContent;
+                    const userName = this.closest('tr').cells[2].textContent;
+                    
+                    console.log(`User ${userName} (ID: ${userId}) ${this.checked ? 'selected' : 'unselected'}`);
+                });
+            });
+
+            /* BULK ACTION BUTTONS */
+            document.querySelectorAll('.actions button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.textContent;
+                    const checkboxes = document.querySelectorAll('#users-page table input[type="checkbox"]:checked');
+                    
+                    if (checkboxes.length === 0) {
+                        alert(`Please select at least one user to ${action.toLowerCase()}`);
+                        return;
+                    }
+                    
+                    const users = Array.from(checkboxes).map(cb => {
+                        const row = cb.closest('tr');
+                        return {
+                            id: row.cells[1].textContent,
+                            name: row.cells[2].textContent
+                        };
                     });
                     
-                    // Show selected page
-                    const pageId = this.getAttribute('data-page') + '-page';
-                    document.getElementById(pageId).style.display = 'block';
+                    const userList = users.map(u => `${u.name} (ID: ${u.id})`).join('\n');
+                    
+                    if (confirm(`Are you sure you want to ${action} the following users?\n\n${userList}`)) {
+                        alert(`Successfully ${action.toLowerCase()}ed ${users.length} user(s)`);
+                        
+                        // Uncheck all checkboxes after action
+                        checkboxes.forEach(cb => cb.checked = false);
+                        
+                        // If deleting accounts, remove the rows
+                        if (action === 'DELETE ACCOUNT') {
+                            users.forEach(user => {
+                                const row = Array.from(document.querySelectorAll('#users-page table tr')).find(tr => {
+                                    return tr.cells[1]?.textContent === user.id;
+                                });
+                                if (row && row.rowIndex > 0) { // Skip header
+                                    row.remove();
+                                }
+                            });
+                        }
+                    }
                 });
             });
-            
-            // Button functionality
-            const banButtons = document.querySelectorAll('.btn.ban');
-            const unbanButtons = document.querySelectorAll('.btn.unban');
-            
-            banButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // In a real app, this would make an API call
-                    alert('User has been banned');
-                    this.textContent = 'UN-BAN';
-                    this.classList.remove('ban');
-                    this.classList.add('unban');
-                });
-            });
-            
-            unbanButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // In a real app, this would make an API call
-                    alert('User has been unbanned');
-                    this.textContent = 'BAN';
-                    this.classList.remove('unban');
-                    this.classList.add('ban');
-                });
-            });
-            
-            // Action buttons
-            const actionButtons = document.querySelectorAll('.actions button');
-            actionButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    alert(`${this.textContent} functionality would be implemented here`);
-                });
-            });
-            
-            // Logout button
-            document.querySelector('.logout').addEventListener('click', function(e) {
-                e.preventDefault();
-                alert('Logging out...');
-                // In a real app, this would redirect to login page
-            });
+
         });
     </script>
+
 </body>
 </html>

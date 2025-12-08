@@ -1,43 +1,148 @@
 import React, { useState } from 'react';
-import './BookingManagement.css';
+import VenueManagement from './VenueManagement';
+import EditVenueForm from './EditVenueForm';
+import VenuesTable from './VenuesTable';
 
-const BookingManagement = ({ admin, onBack, onLogout }) => {
-    const [bookings, setBookings] = useState([]);
+const BookingManagement = () => {
+  const [venues, setVenues] = useState([
+    { 
+      id: 'V001', 
+      name: 'Sunset Hall', 
+      address: 'Manila', 
+      capacity: '250',
+      contact: '09123456789',
+      email: 'sunset@example.com',
+      price: '1500',
+      priceType: 'Hourly',
+      description: 'Beautiful sunset view venue with modern amenities.'
+    },
+    { 
+      id: 'V002', 
+      name: 'Blue Lagoon Venue', 
+      address: 'Quezon City', 
+      capacity: '380',
+      contact: '09234567890',
+      email: 'bluelagoon@example.com',
+      price: '2500',
+      priceType: 'Hourly',
+      description: 'Luxurious venue with lagoon view and premium facilities.'
+    },
+    { 
+      id: 'V003', 
+      name: 'Royal Pavilion', 
+      address: 'Pasig', 
+      capacity: '500',
+      contact: '09345678901',
+      email: 'royal@example.com',
+      price: '5000',
+      priceType: 'Daily',
+      description: 'Royal treatment with premium services and luxurious ambiance.'
+    },
+  ]);
+  
+  const [showAddVenueForm, setShowAddVenueForm] = useState(false);
+  const [showEditVenueForm, setShowEditVenueForm] = useState(false);
+  const [editingVenueId, setEditingVenueId] = useState(null);
 
-    return (
-        <div className="booking-management">
-            <div className="admin-header">
-                <h2>Booking Management</h2>
-                <div className="header-buttons">
-                    <button onClick={onBack} className="btn-secondary">Back to Dashboard</button>
-                    <button onClick={onLogout} className="btn-logout">Logout</button>
-                </div>
-            </div>
+  const handleAddVenue = (newVenue) => {
+    const lastId = venues.length > 0 ? venues[venues.length - 1].id : 'V000';
+    const lastNumber = parseInt(lastId.replace('V', ''));
+    const newId = 'V' + String(lastNumber + 1).padStart(3, '0');
+    
+    const newVenueObj = {
+      id: newId,
+      ...newVenue
+    };
+    
+    setVenues([...venues, newVenueObj]);
+    setShowAddVenueForm(false);
+  };
 
-            <div className="booking-content">
-                <div className="bookings-stats">
-                    <div className="stat-card">
-                        <h3>Total Bookings</h3>
-                        <p>{bookings.length}</p>
-                    </div>
-                    <div className="stat-card">
-                        <h3>Pending</h3>
-                        <p>{bookings.filter(booking => booking.status === 'pending').length}</p>
-                    </div>
-                    <div className="stat-card">
-                        <h3>Confirmed</h3>
-                        <p>{bookings.filter(booking => booking.status === 'confirmed').length}</p>
-                    </div>
-                </div>
+  const handleEditVenue = (venueId) => {
+    setEditingVenueId(venueId);
+    setShowEditVenueForm(true);
+  };
 
-                <div className="bookings-list">
-                    <h3>All Bookings</h3>
-                    <p>Booking management functionality coming soon...</p>
-                    {/* Add booking approval, cancellation, viewing functionality here */}
-                </div>
-            </div>
-        </div>
-    );
+  const handleUpdateVenue = (updatedVenue) => {
+    setVenues(venues.map(venue => {
+      if (venue.id === editingVenueId) {
+        return {
+          ...venue,
+          ...updatedVenue
+        };
+      }
+      return venue;
+    }));
+    
+    setShowEditVenueForm(false);
+    setEditingVenueId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditVenueForm(false);
+    setEditingVenueId(null);
+  };
+
+  const handleBackFromEdit = () => {
+    setShowEditVenueForm(false);
+    setEditingVenueId(null);
+  };
+
+  const getEditingVenue = () => {
+    return venues.find(venue => venue.id === editingVenueId);
+  };
+
+  return (
+    <section className="venue-ease-page">
+      {/* Title Row */}
+      <div className="venue-ease-title-row">
+        <h2>REGISTERED VENUES</h2>
+        {!showAddVenueForm && !showEditVenueForm && (
+          <button 
+            className="venue-ease-add-btn"
+            onClick={() => setShowAddVenueForm(true)}
+          >
+            Add Venues +
+          </button>
+        )}
+      </div>
+
+      {/* Back button for edit mode */}
+      {showEditVenueForm && (
+        <button 
+          className="venue-ease-back-btn"
+          onClick={handleBackFromEdit}
+        >
+          ← Back to Venues List
+        </button>
+      )}
+
+      {/* New Venue Form */}
+      {showAddVenueForm && (
+        <VenueManagement 
+          onAddVenue={handleAddVenue}
+          onCancel={() => setShowAddVenueForm(false)}
+        />
+      )}
+
+      {/* Edit Venue Form */}
+      {showEditVenueForm && (
+        <EditVenueForm 
+          venue={getEditingVenue()}
+          onUpdateVenue={handleUpdateVenue}
+          onCancel={handleCancelEdit}
+        />
+      )}
+
+      {/* Existing Venues Table */}
+      {!showAddVenueForm && !showEditVenueForm && (
+        <VenuesTable 
+          venues={venues}
+          onEditVenue={handleEditVenue}
+        />
+      )}
+    </section>
+  );
 };
 
 export default BookingManagement;

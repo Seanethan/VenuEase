@@ -1,76 +1,64 @@
 import React, { useState } from 'react';
 import AdminLogin from './components/AdminLogin';
+import Sidebar from './components/Sidebar';
 import AdminDashboard from './components/AdminDashboard';
 import UserManagement from './components/UserManagement';
-import VenueManagement from './components/VenueManagement';
-import EventManagement from './components/EventManagement';
+import QueryBuilder from './components/QueryBuilder';
 import BookingManagement from './components/BookingManagement';
 import './App.css';
 
-function App() {
-    const [currentView, setCurrentView] = useState('login');
-    const [admin, setAdmin] = useState(null);
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [activePage, setActivePage] = useState('dashboard');
+  const [currentAdmin, setCurrentAdmin] = useState(null);
 
-    const handleLogin = (adminData) => {
-        setAdmin(adminData);
-        setCurrentView('dashboard');
-    };
+  const handleLogin = (adminData) => {
+    setIsAuthenticated(true);
+    setCurrentAdmin(adminData);
+  };
 
-    const handleLogout = () => {
-        setAdmin(null);
-        setCurrentView('login');
-    };
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setCurrentAdmin(null);
+    setActivePage('dashboard');
+  };
 
-    return (
-        <div className="App">
-            {currentView === 'login' && (
-                <AdminLogin onLogin={handleLogin} />
-            )}
-            
-            {currentView === 'dashboard' && admin && (
-                <AdminDashboard 
-                    admin={admin} 
-                    onLogout={handleLogout}
-                    onViewUsers={() => setCurrentView('users')}
-                    onViewVenues={() => setCurrentView('venues')}
-                    onViewEvents={() => setCurrentView('events')}
-                    onViewBookings={() => setCurrentView('bookings')}
-                />
-            )}
+  const handlePageChange = (page) => {
+    setActivePage(page);
+  };
 
-            {currentView === 'users' && admin && (
-                <UserManagement 
-                    admin={admin}
-                    onBack={() => setCurrentView('dashboard')}
-                    onLogout={handleLogout}
-                />
-            )}
+  const renderPage = () => {
+    switch (activePage) {
+      case 'dashboard':
+        return <AdminDashboard currentAdmin={currentAdmin} />;
+      case 'users':
+        return <UserManagement />;
+      case 'query':
+        return <QueryBuilder />;
+      case 'venues':
+        return <BookingManagement />;
+      default:
+        return <AdminDashboard currentAdmin={currentAdmin} />;
+    }
+  };
 
-            {currentView === 'venues' && admin && (
-                <VenueManagement 
-                    admin={admin}
-                    onBack={() => setCurrentView('dashboard')}
-                    onLogout={handleLogout}
-                />
-            )}
+  if (!isAuthenticated) {
+    return <AdminLogin onLogin={handleLogin} />;
+  }
 
-            {currentView === 'events' && admin && (
-                <EventManagement 
-                    admin={admin}
-                    onBack={() => setCurrentView('dashboard')}
-                    onLogout={handleLogout}
-                />
-            )}
-
-            {currentView === 'bookings' && admin && (
-                <BookingManagement 
-                    admin={admin}
-                    onBack={() => setCurrentView('dashboard')}
-                    onLogout={handleLogout}
-                />
-            )}
-        </div>
-    );
-}
+  return (
+    <div className="venue-ease-container">
+      <Sidebar 
+        activePage={activePage} 
+        onPageChange={handlePageChange}
+        onLogout={handleLogout}
+        currentAdmin={currentAdmin}
+      />
+      <div className="venue-ease-main">
+        {renderPage()}
+      </div>
+    </div>
+  );
+};
 
 export default App;

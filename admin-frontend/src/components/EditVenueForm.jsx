@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const VenueManagement = ({ onAddVenue, onCancel }) => {
+const EditVenueForm = ({ venue, onUpdateVenue, onCancel }) => {
   const [venueData, setVenueData] = useState({
     name: '',
     contact: '',
@@ -11,6 +11,21 @@ const VenueManagement = ({ onAddVenue, onCancel }) => {
     address: '',
     description: ''
   });
+
+  useEffect(() => {
+    if (venue) {
+      setVenueData({
+        name: venue.name || '',
+        contact: venue.contact || '',
+        email: venue.email || '',
+        price: venue.price || '',
+        priceType: venue.priceType || 'Hourly',
+        capacity: venue.capacity || '',
+        address: venue.address || '',
+        description: venue.description || ''
+      });
+    }
+  }, [venue]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,40 +40,18 @@ const VenueManagement = ({ onAddVenue, onCancel }) => {
       return;
     }
     
-    onAddVenue(venueData);
-    setVenueData({
-      name: '',
-      contact: '',
-      email: '',
-      price: '',
-      priceType: 'Hourly',
-      capacity: '',
-      address: '',
-      description: ''
-    });
-  };
-
-  const handleClear = () => {
-    setVenueData({
-      name: '',
-      contact: '',
-      email: '',
-      price: '',
-      priceType: 'Hourly',
-      capacity: '',
-      address: '',
-      description: ''
-    });
-    alert('Form cleared!');
+    onUpdateVenue(venueData);
   };
 
   const handleImageUpload = () => {
     alert('Image upload functionality would open a file dialog in a real application.');
   };
 
+  if (!venue) return null;
+
   return (
     <div className="venue-ease-form-container">
-      <h1>CREATING NEW VENUE</h1>
+      <h1>EDITING VENUE "{venue.name}"</h1>
 
       <div className="venue-ease-top-section">
         <div className="venue-ease-image-upload">
@@ -67,7 +60,7 @@ const VenueManagement = ({ onAddVenue, onCancel }) => {
             onClick={handleImageUpload}
           >
             <span>+</span>
-            <p>Add Image</p>
+            <p>Update Image</p>
           </div>
         </div>
 
@@ -163,20 +156,20 @@ const VenueManagement = ({ onAddVenue, onCancel }) => {
 
       <div className="venue-ease-form-actions">
         <button 
-          className="venue-ease-clear-btn"
-          onClick={handleClear}
+          className="venue-ease-cancel-btn"
+          onClick={onCancel}
         >
-          Clear
+          Cancel
         </button>
         <button 
-          className="venue-ease-add-btn-form"
+          className="venue-ease-update-btn-form"
           onClick={handleSubmit}
         >
-          Add Venue
+          Update Venue
         </button>
       </div>
     </div>
   );
 };
 
-export default VenueManagement;
+export default EditVenueForm;
