@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import './css/LandingPage.css';
+import DashboardHome from './DashboardHome.jsx';
+import DashboardOffers from './DashboardOffers.jsx';
+import DashboardVenues from './DashboardVenues.jsx';
+import DashboardBooking from './DashboardBooking.jsx';
+import DashboardPayment from './DashboardPayment.jsx';
+import QRCodeModal from './QRCodeModal.jsx';
+import PaymentSuccessModal from './PaymentSuccessModal.jsx';
 
 const Dashboard = ({ user, onLogout }) => {
     const [activeTab, setActiveTab] = useState('home');
+    const [selectedVenue, setSelectedVenue] = useState(null);
     const [bookingData, setBookingData] = useState({
         fromDate: '',
         toDate: '',
@@ -12,7 +20,7 @@ const Dashboard = ({ user, onLogout }) => {
     const [selectedWallet, setSelectedWallet] = useState(null);
     const [showQRModal, setShowQRModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [paymentSuccessful, setPaymentSuccessful] = useState(false);
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
 
     // Mock data for events
@@ -31,7 +39,7 @@ const Dashboard = ({ user, onLogout }) => {
         }
     ];
 
-    // Mock data for offers - now includes venue details
+    // Mock data for offers
     const offers = [
         {
             id: 1,
@@ -96,32 +104,38 @@ const Dashboard = ({ user, onLogout }) => {
         }
     ];
 
-    // Mock wallets
+    // Updated wallets with QR codes
     const wallets = [
-        { id: 1, name: "GCash", number: "+63 000 000 0000", icon: "GC" },
-        { id: 2, name: "PayPal", number: "user@example.com", icon: "PP" },
-        { id: 3, name: "Maya", number: "+63 000 000 0000", icon: "MP" }
+        { 
+            id: 1, 
+            name: "GCash", 
+            number: "+63 000 000 0000", 
+            icon: "GC",
+            qrCode: "/gcash-qr.png",
+            instructions: "Scan this QR code using GCash app to pay"
+        },
+        { 
+            id: 2, 
+            name: "PayPal", 
+            number: "user@example.com", 
+            icon: "PP",
+            qrCode: "/paypal-qr.png",
+            instructions: "Scan this QR code using PayPal app to pay"
+        },
+        { 
+            id: 3, 
+            name: "Maya", 
+            number: "+63 000 000 0000", 
+            icon: "MP",
+            qrCode: "/maya_qr_for_payment.jpg",
+            instructions: "Scan this QR code using Maya app to pay"
+        }
     ];
-
-    // Filter offers based on search query
-    const filteredOffers = offers.filter(offer => 
-        offer.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        offer.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        offer.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const toggleEventExpand = (eventId) => {
-        setExpandedEvents(prev => ({
-            ...prev,
-            [eventId]: !prev[eventId]
-        }));
-    };
 
     const handleBookNow = (offer) => {
         setSelectedVenue(offer);
         setActiveTab('venues');
     };
-
 
     const startBooking = (offer) => {
         setSelectedVenue(offer);
@@ -158,13 +172,33 @@ const Dashboard = ({ user, onLogout }) => {
             alert("Please select a payment method");
             return;
         }
-        setShowPaymentModal(true);
-        setPaymentSuccessful(true);
+        setSelectedPaymentMethod(selectedWallet);
+        setShowQRModal(true);
     };
 
-    const closeModal = () => {
+    const confirmPayment = () => {
+        setShowQRModal(false);
+        setShowPaymentModal(true);
+        setTimeout(() => {
+            setShowPaymentModal(false);
+            setSelectedWallet(null);
+            setBookingData({
+                fromDate: '',
+                toDate: '',
+                fromTime: '',
+                toTime: ''
+            });
+            setSelectedVenue(null);
+            setActiveTab('venues');
+        }, 3000);
+    };
+
+    const closeQRModal = () => {
+        setShowQRModal(false);
+    };
+
+    const closePaymentModal = () => {
         setShowPaymentModal(false);
-        setPaymentSuccessful(false);
         setSelectedWallet(null);
         setBookingData({
             fromDate: '',
@@ -176,757 +210,28 @@ const Dashboard = ({ user, onLogout }) => {
         setActiveTab('venues');
     };
 
-    const renderHomeTab = () => (
-        <div className="tab-content active">
-            <h1 className="section-title" style={{ padding: '25px 40px 10px', margin: 0, fontFamily: "'Playfair Display', serif" }}>
-                Recent Events
-            </h1>
-            
-            {recentEvents.map(event => (
-                <div key={event.id} className="event-container" style={{
-                    display: 'flex',
-                    gap: '30px',
-                    padding: '30px 40px',
-                    background: 'white',
-                    margin: '20px 40px',
-                    borderRadius: '10px',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-                }}>
-                    <div className="event-img" style={{ flex: 1 }}>
-                        <img 
-                            src={event.image} 
-                            alt={event.title}
-                            style={{ 
-                                width: '100%', 
-                                height: '300px', 
-                                objectFit: 'cover',
-                                borderRadius: '10px'
-                            }}
-                        />
-                    </div>
-                    <div className="event-details" style={{ flex: 2 }}>
-                        <h3 style={{ marginTop: 0, color: '#333' }}>{event.title}</h3>
-                        <p style={{ 
-                            lineHeight: '1.6',
-                            color: '#666',
-                            maxHeight: expandedEvents[event.id] ? 'none' : '120px',
-                            overflow: 'hidden'
-                        }}>
-                            {event.description}
-                        </p>
-                        <button 
-                            className="read-more-btn"
-                            onClick={() => toggleEventExpand(event.id)}
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                color: '#bd9780',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                                padding: '5px 0',
-                                marginTop: '10px'
-                            }}
-                        >
-                            {expandedEvents[event.id] ? 'Read Less <' : 'Read More >'}
-                        </button>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-
-    const renderOffersTab = () => (
-        <div className="tab-content active">
-            <h1 style={{ padding: '25px 40px 10px', margin: 0, fontFamily: "'Playfair Display', serif" }}>
-                Offers
-            </h1>
-            
-            <div className="search-box" style={{ margin: '20px 40px', textAlign: 'right' }}>
-                <input 
-                    type="text" 
-                    placeholder="Search venues..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{
-                        padding: '8px 12px',
-                        borderRadius: '20px',
-                        border: '1px solid #ccc',
-                        width: '250px'
-                    }}
-                />
-            </div>
-
-            <div className="offers-container" style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: '30px',
-                padding: '0 40px 40px'
-            }}>
-                {filteredOffers.map(offer => (
-                    <div key={offer.id} className="offer-card" style={{
-                        background: 'white',
-                        padding: '15px',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        gap: '15px',
-                        border: '1px solid #ccc',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                        transition: 'transform 0.2s',
-                        cursor: 'pointer'
-                    }}>
-                        <img 
-                            src={offer.image} 
-                            alt={offer.title}
-                            style={{
-                                width: '230px',
-                                height: '150px',
-                                objectFit: 'cover',
-                                borderRadius: '6px'
-                            }}
-                        />
-                        <div style={{ flex: 1 }}>
-                            <div className="offer-title" style={{
-                                fontWeight: 'bold',
-                                fontSize: '20px',
-                                marginBottom: '10px',
-                                color: '#bd9780'
-                            }}>
-                                {offer.title}
-                            </div>
-                            <p style={{ lineHeight: '1.5', color: '#666', marginBottom: '15px' }}>
-                                <strong>Address:</strong> {offer.address}<br /><br />
-                                <strong>Description:</strong> {offer.description}
-                            </p>
-                            <div style={{ 
-                                display: 'flex', 
-                                justifyContent: 'space-between',
-                                alignItems: 'flex-end'
-                            }}>
-                                <div style={{
-                                    fontWeight: 'bold',
-                                    color: '#bd9780',
-                                    fontSize: '18px'
-                                }}>
-                                    ₱{offer.price}
-                                </div>
-                                <button 
-                                    className="btn"
-                                    onClick={() => handleBookNow(offer)}
-                                    style={{
-                                        marginTop: '15px',
-                                        padding: '8px 20px',
-                                        width: 'auto'
-                                    }}
-                                >
-                                    BOOK NOW
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-
-    const renderVenuesTab = () => {
-        // If we have a selected venue from Offers tab, show only that one
-        const venueToShow = selectedVenue || offers[0];
-        
-        return (
-            <div className="tab-content active">
-                <div style={{ padding: '40px' }}>
-                    <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '20px'
-                    }}>
-                        <h1 style={{ 
-                            margin: 0, 
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: '32px'
-                        }}>
-                            {selectedVenue ? 'Selected Venue' : 'Featured Venues'}
-                        </h1>
-                        {selectedVenue && (
-                            <button 
-                                className="btn"
-                                onClick={() => setSelectedVenue(null)}
-                                style={{
-                                    background: '#ddd',
-                                    color: '#333',
-                                    width: 'auto'
-                                }}
-                            >
-                                View All Venues
-                            </button>
-                        )}
-                    </div>
-
-                    <div className="venue-info" style={{
-                        display: 'flex',
-                        gap: '40px',
-                        background: 'white',
-                        padding: '30px',
-                        borderRadius: '15px',
-                        marginBottom: '40px',
-                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
-                    }}>
-                        <img 
-                            src={venueToShow.image} 
-                            alt={venueToShow.title}
-                            style={{
-                                width: '380px',
-                                height: '300px',
-                                objectFit: 'cover',
-                                borderRadius: '10px'
-                            }}
-                        />
-                        <div className="venue-text" style={{ flex: 1 }}>
-                            <h2 style={{ 
-                                margin: '0 0 10px 0', 
-                                fontSize: '28px',
-                                color: '#333'
-                            }}>
-                                {venueToShow.title}
-                            </h2>
-                            <p style={{ 
-                                fontSize: '14px', 
-                                color: '#666',
-                                marginBottom: '20px'
-                            }}>
-                                {venueToShow.venueAddress || venueToShow.address}<br />
-                                PRICE: {venueToShow.venuePrice || `₱${venueToShow.price}`}
-                            </p>
-                            <h3 style={{ margin: '20px 0 10px 0', color: '#333' }}>
-                                Description:
-                            </h3>
-                            <p style={{ lineHeight: '1.6', color: '#666' }}>
-                                {venueToShow.venueDescription || venueToShow.description}
-                            </p>
-                        </div>
-                    </div>
-
-                    <h3 style={{ 
-                        margin: '40px 0 20px 0', 
-                        fontSize: '24px',
-                        color: '#333',
-                        borderBottom: '2px solid #bd9780',
-                        paddingBottom: '10px'
-                    }}>
-                        REVIEWS
-                    </h3>
-
-                    <div className="reviews" style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(3, 1fr)',
-                        gap: '20px',
-                        marginBottom: '30px'
-                    }}>
-                        {venueToShow.reviews?.map(review => (
-                            <div key={review.id} className="review-card" style={{
-                                background: '#bd9780',
-                                color: 'white',
-                                padding: '25px',
-                                borderRadius: '10px',
-                                textAlign: 'center'
-                            }}>
-                                <div style={{
-                                    fontSize: '40px',
-                                    marginBottom: '15px'
-                                }}>
-                                    {review.avatar}
-                                </div>
-                                <h4 style={{ margin: '10px 0', fontSize: '18px' }}>
-                                    {review.comment.split('!')[0]}!
-                                </h4>
-                                <p style={{ 
-                                    margin: '10px 0', 
-                                    fontSize: '14px',
-                                    lineHeight: '1.4'
-                                }}>
-                                    {review.comment.split('!')[1]}
-                                </p>
-                                <div style={{ 
-                                    marginTop: '15px', 
-                                    fontSize: '20px',
-                                    color: '#FFD700'
-                                }}>
-                                    {'★'.repeat(review.rating)}
-                                </div>
-                                <p style={{ marginTop: '10px', fontSize: '12px' }}>
-                                    - {review.user}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="buttons" style={{
-                        display: 'flex',
-                        gap: '20px',
-                        justifyContent: 'center',
-                        marginTop: '30px'
-                    }}>
-                        <button className="btn" style={{ width: '200px' }}>
-                            ➤ Make a Review
-                        </button>
-                        <button 
-                            className="btn" 
-                            style={{ width: '200px' }}
-                            onClick={() => startBooking(venueToShow)}
-                        >
-                            ➤ Book Now!
-                        </button>
-                    </div>
-
-                    {!selectedVenue && (
-                        <div style={{ marginTop: '50px' }}>
-                            <h3 style={{ 
-                                marginBottom: '20px', 
-                                fontSize: '24px',
-                                color: '#333'
-                            }}>
-                                Other Venues
-                            </h3>
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(2, 1fr)',
-                                gap: '20px'
-                            }}>
-                                {offers.slice(1, 3).map(venue => (
-                                    <div 
-                                        key={venue.id}
-                                        onClick={() => setSelectedVenue(venue)}
-                                        style={{
-                                            background: 'white',
-                                            padding: '20px',
-                                            borderRadius: '10px',
-                                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                                            cursor: 'pointer',
-                                            transition: 'transform 0.2s'
-                                        }}
-                                    >
-                                        <div style={{
-                                            display: 'flex',
-                                            gap: '15px',
-                                            alignItems: 'center'
-                                        }}>
-                                            <img 
-                                                src={venue.image}
-                                                alt={venue.title}
-                                                style={{
-                                                    width: '100px',
-                                                    height: '80px',
-                                                    objectFit: 'cover',
-                                                    borderRadius: '5px'
-                                                }}
-                                            />
-                                            <div>
-                                                <h4 style={{ margin: '0 0 5px 0', color: '#333' }}>
-                                                    {venue.title}
-                                                </h4>
-                                                <p style={{ 
-                                                    fontSize: '12px', 
-                                                    color: '#666',
-                                                    margin: '0 0 5px 0'
-                                                }}>
-                                                    {venue.address}
-                                                </p>
-                                                <div style={{
-                                                    fontWeight: 'bold',
-                                                    color: '#bd9780'
-                                                }}>
-                                                    {venue.venuePrice || `₱${venue.price}`}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
-    const renderBookingTab = () => (
-        <div className="tab-content active">
-            <div className="booking-container" style={{
-                padding: '30px 40px',
-                maxWidth: '800px',
-                margin: '0 auto'
-            }}>
-                <h1 style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: '28px',
-                    marginBottom: '10px'
-                }}>
-                    {selectedVenue?.title}
-                </h1>
-                
-                <div style={{
-                    background: 'white',
-                    borderRadius: '10px',
-                    padding: '25px',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                    marginBottom: '30px'
-                }}>
-                    <div style={{ marginBottom: '20px' }}>
-                        <p style={{ margin: '5px 0' }}>
-                            <strong>Address:</strong> {selectedVenue?.address}
-                        </p>
-                        <div style={{
-                            fontWeight: 'bold',
-                            color: '#bd9780',
-                            fontSize: '18px',
-                            margin: '15px 0'
-                        }}>
-                            PRICE: ₱{selectedVenue?.price}
-                        </div>
-                    </div>
-                    
-                    <h3 style={{
-                        fontWeight: 'bold',
-                        marginBottom: '15px',
-                        fontSize: '18px',
-                        color: '#333',
-                        borderBottom: '1px solid #eee',
-                        paddingBottom: '10px'
-                    }}>
-                        DESCRIPTION
-                    </h3>
-                    <p style={{ lineHeight: '1.6', color: '#666' }}>
-                        {selectedVenue?.description} INCIDIDUNT UT LABORE ET DOLORE MAGNA ALIQUA. UT ENIM AD MINIM VENIAM, QUIS NOSTRUD EXERCITATION ULLAMCO LABORIS NISI UT ALIQUIP EX EA COMMODO CONSEQUAT.
-                    </p>
-                </div>
-                
-                <div style={{
-                    background: 'white',
-                    borderRadius: '10px',
-                    padding: '25px',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                    marginBottom: '20px'
-                }}>
-                    <h3 style={{
-                        fontWeight: 'bold',
-                        marginBottom: '15px',
-                        fontSize: '18px',
-                        color: '#333',
-                        borderBottom: '1px solid #eee',
-                        paddingBottom: '10px'
-                    }}>
-                        DATE & TIME
-                    </h3>
-                    
-                    <div style={{
-                        display: 'flex',
-                        gap: '20px',
-                        flexWrap: 'wrap'
-                    }}>
-                        <div style={{ flex: 1, minWidth: '200px' }}>
-                            <label style={{ display: 'block', marginBottom: '5px' }}>From Date:</label>
-                            <input 
-                                type="date"
-                                value={bookingData.fromDate}
-                                onChange={(e) => setBookingData({...bookingData, fromDate: e.target.value})}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    border: '1px solid #ddd',
-                                    borderRadius: '5px',
-                                    marginBottom: '15px',
-                                    fontFamily: 'inherit'
-                                }}
-                            />
-                            
-                            <label style={{ display: 'block', marginBottom: '5px' }}>To Date:</label>
-                            <input 
-                                type="date"
-                                value={bookingData.toDate}
-                                onChange={(e) => setBookingData({...bookingData, toDate: e.target.value})}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    border: '1px solid #ddd',
-                                    borderRadius: '5px',
-                                    marginBottom: '15px',
-                                    fontFamily: 'inherit'
-                                }}
-                            />
-                        </div>
-                        
-                        <div style={{ flex: 1, minWidth: '200px' }}>
-                            <label style={{ display: 'block', marginBottom: '5px' }}>From Time:</label>
-                            <input 
-                                type="time"
-                                value={bookingData.fromTime}
-                                onChange={(e) => setBookingData({...bookingData, fromTime: e.target.value})}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    border: '1px solid #ddd',
-                                    borderRadius: '5px',
-                                    marginBottom: '15px',
-                                    fontFamily: 'inherit'
-                                }}
-                            />
-                            
-                            <label style={{ display: 'block', marginBottom: '5px' }}>To Time:</label>
-                            <input 
-                                type="time"
-                                value={bookingData.toTime}
-                                onChange={(e) => setBookingData({...bookingData, toTime: e.target.value})}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    border: '1px solid #ddd',
-                                    borderRadius: '5px',
-                                    marginBottom: '15px',
-                                    fontFamily: 'inherit'
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-                
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    gap: '15px',
-                    marginTop: '30px'
-                }}>
-                    <button 
-                        className="btn"
-                        onClick={cancelBooking}
-                        style={{
-                            background: '#ddd',
-                            color: '#333',
-                            width: 'auto'
-                        }}
-                    >
-                        CANCEL
-                    </button>
-                    <button 
-                        className="btn"
-                        onClick={proceedToPayment}
-                        style={{ width: 'auto' }}
-                    >
-                        CONTINUE TO PAYMENT
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-
-    const renderPaymentTab = () => (
-        <div className="tab-content active">
-            <div className="payment-container" style={{
-                padding: '30px 40px',
-                maxWidth: '800px',
-                margin: '0 auto'
-            }}>
-                <h1 style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: '28px',
-                    marginBottom: '30px',
-                    paddingBottom: '10px',
-                    borderBottom: '2px solid #bd9780'
-                }}>
-                    PAYMENT METHOD
-                </h1>
-                
-                <div style={{
-                    display: 'flex',
-                    gap: '30px',
-                    flexWrap: 'wrap'
-                }}>
-                    <div style={{
-                        background: 'white',
-                        borderRadius: '10px',
-                        padding: '25px',
-                        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                        flex: 1,
-                        minWidth: '300px'
-                    }}>
-                        <h3 style={{
-                            fontWeight: 'bold',
-                            marginBottom: '20px',
-                            fontSize: '18px',
-                            color: '#333'
-                        }}>
-                            ONLINE BANKING
-                        </h3>
-                        
-                        <div style={{
-                            textAlign: 'center',
-                            margin: '20px 0',
-                            padding: '15px',
-                            background: '#f9f9f9',
-                            borderRadius: '8px'
-                        }}>
-                            <p>SCAN THIS QR CODE</p>
-                            <p>WHEN USING E-WALLET</p>
-                            <div style={{
-                                width: '200px',
-                                height: '200px',
-                                background: '#e0e0e0',
-                                margin: '15px auto',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: '8px',
-                                fontSize: '14px',
-                                color: '#666'
-                            }}>
-                                [QR CODE PLACEHOLDER]
-                            </div>
-                            <a href="#" style={{
-                                display: 'block',
-                                marginTop: '15px',
-                                color: '#bd9780',
-                                fontWeight: 'bold',
-                                textDecoration: 'none'
-                            }}>
-                                Connect your bank now 
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div style={{
-                        background: 'white',
-                        borderRadius: '10px',
-                        padding: '25px',
-                        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                        flex: 1,
-                        minWidth: '300px'
-                    }}>
-                        <h3 style={{
-                            fontWeight: 'bold',
-                            marginBottom: '20px',
-                            fontSize: '18px',
-                            color: '#333'
-                        }}>
-                            ONLINE WALLETS
-                        </h3>
-                        
-                        {wallets.map(wallet => (
-                            <div 
-                                key={wallet.id}
-                                onClick={() => setSelectedWallet(wallet.id)}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    margin: '15px 0',
-                                    padding: '15px',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    transition: 'background 0.3s',
-                                    background: selectedWallet === wallet.id ? '#f0e1d8' : 'transparent',
-                                    border: selectedWallet === wallet.id ? '1px solid #bd9780' : '1px solid transparent'
-                                }}
-                            >
-                                <div style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    background: '#e0e0e0',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: 'bold'
-                                }}>
-                                    {wallet.icon}
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 'bold' }}>{wallet.name}</div>
-                                    <div style={{ fontSize: '14px', color: '#666' }}>{wallet.number}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    gap: '15px',
-                    marginTop: '30px',
-                    paddingTop: '20px',
-                    borderTop: '1px solid #ddd'
-                }}>
-                    <button 
-                        className="btn"
-                        onClick={backToBooking}
-                        style={{
-                            background: '#ddd',
-                            color: '#333',
-                            width: 'auto'
-                        }}
-                    >
-                        BACK
-                    </button>
-                    <button 
-                        className="btn"
-                        onClick={processPayment}
-                        style={{ width: 'auto' }}
-                    >
-                        PROCEED TO PAYMENT
-                    </button>
-                </div>
-            </div>
-        </div>
+    const filteredOffers = offers.filter(offer => 
+        offer.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        offer.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        offer.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
         <div className="dashboard">
-            {/* Header with profile settings and logout */}
-            <header className="header" style={{ 
-                padding: '15px 40px',
-                background: '#eeebed',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-            }}>
-                <div className="container1" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <h1 style={{ 
-                            fontSize: '24px', 
-                            color: '#bd9780', 
-                            margin: 0,
-                            textTransform: 'uppercase',
-                            letterSpacing: '2px'
-                        }}>
-                            VENUEASE
-                        </h1>
-                        <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>
-                            Welcome, <strong>{user.full_Name}</strong>
-                        </p>
+            {/* Header */}
+            <header className="header">
+                <div className="container1">
+                    <div className="logo">
+                        <h1>VENUEASE</h1>
+                        <p>Welcome, <strong>{user.full_Name}</strong></p>
                     </div>
-                    <nav className="navigation" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <button 
-                            className="btn"
-                            style={{ 
-                                padding: '8px 20px',
-                                width: 'auto',
-                                fontSize: '14px'
-                            }}
-                        >
+                    <nav className="navigation">
+                        <button className="btn">
                             Profile Settings
                         </button>
                         <button 
                             className="btn-logout"
                             onClick={onLogout}
-                            style={{
-                                padding: '8px 20px',
-                                background: '#333',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '25px',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s'
-                            }}
                         >
                             Logout
                         </button>
@@ -981,7 +286,6 @@ const Dashboard = ({ user, onLogout }) => {
                 <button 
                     onClick={() => {
                         setActiveTab('venues');
-                        // Keep selected venue when switching to venues tab
                     }}
                     style={{
                         background: 'none',
@@ -999,78 +303,65 @@ const Dashboard = ({ user, onLogout }) => {
             </div>
 
             {/* Main Content */}
-            <div className="dashboard-content" style={{ 
-                background: '#f5f5f5',
-                minHeight: 'calc(100vh - 120px)'
-            }}>
-                {activeTab === 'home' && renderHomeTab()}
-                {activeTab === 'offers' && renderOffersTab()}
-                {activeTab === 'venues' && renderVenuesTab()}
-                {activeTab === 'booking' && renderBookingTab()}
-                {activeTab === 'payment' && renderPaymentTab()}
+            <div className="dashboard-content">
+                {activeTab === 'home' && (
+                    <DashboardHome 
+                        recentEvents={recentEvents}
+                    />
+                )}
+                {activeTab === 'offers' && (
+                    <DashboardOffers 
+                        offers={offers}
+                        filteredOffers={filteredOffers}
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        handleBookNow={handleBookNow}
+                    />
+                )}
+                {activeTab === 'venues' && (
+                    <DashboardVenues 
+                        selectedVenue={selectedVenue}
+                        offers={offers}
+                        setSelectedVenue={setSelectedVenue}
+                        startBooking={startBooking}
+                    />
+                )}
+                {activeTab === 'booking' && (
+                    <DashboardBooking 
+                        selectedVenue={selectedVenue}
+                        bookingData={bookingData}
+                        setBookingData={setBookingData}
+                        cancelBooking={cancelBooking}
+                        proceedToPayment={proceedToPayment}
+                    />
+                )}
+                {activeTab === 'payment' && (
+                    <DashboardPayment 
+                        selectedVenue={selectedVenue}
+                        selectedWallet={selectedWallet}
+                        setSelectedWallet={setSelectedWallet}
+                        backToBooking={backToBooking}
+                        processPayment={processPayment}
+                        wallets={wallets}
+                    />
+                )}
             </div>
 
-            {/* Payment Success Modal */}
+            {/* Modals */}
+            {showQRModal && selectedPaymentMethod && (
+                <QRCodeModal 
+                    selectedPaymentMethod={selectedPaymentMethod}
+                    selectedVenue={selectedVenue}
+                    closeQRModal={closeQRModal}
+                    confirmPayment={confirmPayment}
+                />
+            )}
+
             {showPaymentModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    background: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        background: 'white',
-                        padding: '40px',
-                        borderRadius: '10px',
-                        textAlign: 'center',
-                        maxWidth: '500px',
-                        width: '90%',
-                        boxShadow: '0 5px 15px rgba(0,0,0,0.3)'
-                    }}>
-                        <div style={{ fontSize: '60px', color: '#4CAF50', marginBottom: '20px' }}>✓</div>
-                        <h2 style={{ 
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: '24px',
-                            marginBottom: '20px'
-                        }}>
-                            PAYMENT SUCCESSFUL!
-                        </h2>
-                        
-                        <div style={{ 
-                            margin: '20px 0',
-                            padding: '15px',
-                            background: '#f9f9f9',
-                            borderRadius: '8px'
-                        }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px 0' }}>
-                                <span>Amount Paid:</span>
-                                <span>₱{selectedVenue?.price}.00</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px 0' }}>
-                                <span>Total Amount Sent:</span>
-                                <span>₱{selectedVenue?.price}.00</span>
-                            </div>
-                        </div>
-                        
-                        <p style={{ color: '#666' }}>
-                            Your payment has been processed successfully. You will receive a confirmation email shortly.
-                        </p>
-                        
-                        <button 
-                            className="btn"
-                            onClick={closeModal}
-                            style={{ marginTop: '20px', width: 'auto' }}
-                        >
-                            OK
-                        </button>
-                    </div>
-                </div>
+                <PaymentSuccessModal 
+                    selectedVenue={selectedVenue}
+                    closePaymentModal={closePaymentModal}
+                />
             )}
         </div>
     );

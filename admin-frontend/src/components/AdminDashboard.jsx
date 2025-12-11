@@ -73,13 +73,6 @@ const AdminDashboard = ({ admin, onLogout, onViewUsers, onViewVenues, onViewEven
                             <p>Venues</p>
                         </div>
                     </div>
-                    <div className="stat-card">
-                        <div className="stat-icon">🎯</div>
-                        <div className="stat-info">
-                            <h3>{loading ? '...' : stats.totalEvents}</h3>
-                            <p>Events</p>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Admin Actions */}
@@ -98,39 +91,11 @@ const AdminDashboard = ({ admin, onLogout, onViewUsers, onViewVenues, onViewEven
                         <button className="action-btn">Manage Venues</button>
                     </div>
 
-                    <div className="action-card" onClick={onViewEvents}>
-                        <div className="action-icon">🎯</div>
-                        <h3>Event Management</h3>
-                        <p>Create and manage events and categories</p>
-                        <button className="action-btn">Manage Events</button>
-                    </div>
-
                     <div className="action-card" onClick={onViewBookings}>
                         <div className="action-icon">📅</div>
                         <h3>Booking Management</h3>
                         <p>View and manage all booking requests</p>
                         <button className="action-btn">Manage Bookings</button>
-                    </div>
-                </div>
-
-                {/* Recent Activity */}
-                <div className="recent-activity">
-                    <h2>System Status</h2>
-                    <div className="activity-list">
-                        <div className="activity-item">
-                            <div className="activity-icon">✅</div>
-                            <div className="activity-content">
-                                <p>Database connected successfully</p>
-                                <span>Just now</span>
-                            </div>
-                        </div>
-                        <div className="activity-item">
-                            <div className="activity-icon">🔧</div>
-                            <div className="activity-content">
-                                <p>Admin panel running normally</p>
-                                <span>System operational</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

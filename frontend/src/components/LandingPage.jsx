@@ -1,6 +1,7 @@
 // C:\VenuEase\frontend\src\components\LandingPage.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import "./css/LandingPage.css";
+
 const LandingPage = ({ onLoginClick, onSignUpClick }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const trackRef = useRef(null);

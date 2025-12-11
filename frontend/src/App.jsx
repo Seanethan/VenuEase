@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import LandingPage from './components/LandingPage';
-import Login from './components/login.jsx';
+import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import './App.css';
@@ -10,14 +10,18 @@ function App() {
     const [user, setUser] = useState(null);
 
     const handleLogin = (userData) => {
+        console.log('✅ User logged in:', userData);
         setUser(userData);
         setCurrentView('dashboard');
     };
 
     const handleLogout = () => {
+        console.log('🔒 User logged out');
         setUser(null);
         setCurrentView('landing');
     };
+
+    console.log('🔍 Current view:', currentView, 'User:', user);
 
     return (
         <div className="App">
