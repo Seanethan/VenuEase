@@ -11,7 +11,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
         unavailable: 0,
         recent: 0
     });
-    
+
     // Form states
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingVenue, setEditingVenue] = useState(null);
@@ -39,8 +39,21 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
     const fetchVenues = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://localhost:5000/api/admin/venues');
-            setVenues(response.data);
+            const response = await axios.get('/api/admin/venues');
+
+            // Transform the venue data to include images properly
+            const formattedVenues = response.data.map(venue => {
+                const venueImages = venue.images || [];
+                
+                return {
+                    ...venue,
+                    images: venueImages.map(img => 
+                        img.startsWith('http') ? img : `http://localhost:5000${img}`
+                    )
+                };
+            });
+
+            setVenues(formattedVenues);
         } catch (error) {
             console.error('Error fetching venues:', error);
             alert('Failed to load venues. Please try again.');
@@ -52,7 +65,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
     // Fetch venue statistics
     const fetchVenueStats = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/admin/venues/stats');
+            const response = await axios.get('/api/admin/venues/stats');
             setStats(response.data);
         } catch (error) {
             console.error('Error fetching venue stats:', error);
@@ -89,8 +102,8 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
         }
 
         const files = Array.from(e.dataTransfer.files);
-        const imageFiles = files.filter(file => 
-            file.type.startsWith('image/') && 
+        const imageFiles = files.filter(file =>
+            file.type.startsWith('image/') &&
             ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)
         );
 
@@ -110,7 +123,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
     // Handle file input change
     const handleFileInput = async (e) => {
         const files = Array.from(e.target.files);
-        
+
         if (formData.images.length >= 5) {
             alert('Maximum 5 images allowed');
             e.target.value = '';
@@ -132,14 +145,15 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
         if (files.length === 0) return;
 
         setUploading(true);
-        
+
         try {
             const formDataObj = new FormData();
             files.forEach(file => {
                 formDataObj.append('images', file);
             });
 
-            const response = await axios.post('http://localhost:5000/api/admin/venues/upload', formDataObj, {
+            // FIXED: Changed from GET to POST
+            const response = await axios.post('/api/admin/venues/upload', formDataObj, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -187,7 +201,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
             contact_Email: venue.contact_Email || '',
             contact_Phone: venue.contact_Phone || '',
             description: venue.description || '',
-            images: venue.images || []
+            images: venue.images || [] // Ensure images array is included
         });
     };
 
@@ -210,7 +224,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
     // Submit form (create or update)
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Validate required fields
         if (!formData.venue_Name || !formData.address || !formData.capacity || !formData.price) {
             alert('Please fill in all required fields: Name, Address, Capacity, and Price');
@@ -218,22 +232,40 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
         }
 
         try {
-            const venueData = {
-                ...formData,
-                capacity: parseInt(formData.capacity),
-                price: parseFloat(formData.price)
-            };
-
+            // FIXED: Changed from absolute URLs to relative paths
             if (editingVenue) {
-                // Update existing venue
-                await axios.put(`http://localhost:5000/api/admin/venues/${editingVenue.venue_ID}`, venueData);
+                // For update, include images in the request
+                const updateData = {
+                    venue_Name: formData.venue_Name,
+                    address: formData.address,
+                    capacity: parseInt(formData.capacity),
+                    price: parseFloat(formData.price),
+                    contact_Email: formData.contact_Email,
+                    contact_Phone: formData.contact_Phone,
+                    description: formData.description,
+                    images: formData.images || [],
+                    is_Available: editingVenue.is_Available
+                };
+                
+                await axios.put(`/api/admin/venues/${editingVenue.venue_ID}`, updateData);
                 alert('Venue updated successfully!');
             } else {
-                // Create new venue
-                await axios.post('http://localhost:5000/api/admin/venues', venueData);
+                // For create, include images in the request
+                const newVenueData = {
+                    venue_Name: formData.venue_Name,
+                    address: formData.address,
+                    capacity: parseInt(formData.capacity),
+                    price: parseFloat(formData.price),
+                    contact_Email: formData.contact_Email,
+                    contact_Phone: formData.contact_Phone,
+                    description: formData.description,
+                    images: formData.images || []
+                };
+                
+                await axios.post('/api/admin/venues', newVenueData);
                 alert('Venue created successfully!');
             }
-            
+
             // Refresh data
             fetchVenues();
             fetchVenueStats();
@@ -249,9 +281,10 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
         if (!window.confirm(`Are you sure you want to delete "${venueName}"? This action cannot be undone!`)) {
             return;
         }
-        
+
         try {
-            await axios.delete(`http://localhost:5000/api/admin/venues/${venueId}`);
+            // FIXED: Changed from absolute URL to relative path
+            await axios.delete(`/api/admin/venues/${venueId}`);
             alert('Venue deleted successfully!');
             fetchVenues();
             fetchVenueStats();
@@ -264,16 +297,17 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
     // Toggle venue availability
     const toggleAvailability = async (venue) => {
         const newStatus = !venue.is_Available;
-        const message = newStatus 
+        const message = newStatus
             ? `Are you sure you want to make "${venue.venue_Name}" available?`
             : `Are you sure you want to make "${venue.venue_Name}" unavailable?`;
-        
+
         if (!window.confirm(message)) return;
-        
+
         try {
-            await axios.put(`http://localhost:5000/api/admin/venues/${venue.venue_ID}`, {
+            // FIXED: Changed from absolute URL to relative path
+            await axios.put(`/api/admin/venues/${venue.venue_ID}`, {
                 ...venue,
-                is_Active: newStatus
+                is_Available: newStatus
             });
             alert(`Venue ${newStatus ? 'made available' : 'made unavailable'} successfully!`);
             fetchVenues();
@@ -296,9 +330,8 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
 
     // Get full image URL
     const getImageUrl = (imagePath) => {
-        if (imagePath.startsWith('http')) {
-            return imagePath;
-        }
+        if (!imagePath) return 'https://via.placeholder.com/400x250?text=No+Image';
+        if (imagePath.startsWith('http')) return imagePath;
         return `http://localhost:5000${imagePath}`;
     };
 
@@ -311,7 +344,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                         <h1 className="brand-name">VenuEase</h1>
                         <div className="brand-subtitle">ADMIN PANEL</div>
                     </div>
-                    
+
                     <nav className="admin-nav">
                         <div className="nav-title">MAIN NAVIGATION</div>
                         <ul className="nav-list">
@@ -352,7 +385,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                 <h1>REGISTERED VENUES</h1>
                                 <p>Manage {stats.total} venues • {stats.available} available • {stats.unavailable} unavailable</p>
                             </div>
-                            
+
                             <div className="header-right">
                                 <div className="admin-info">
                                     <div className="admin-avatar">
@@ -372,7 +405,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
 
                         {/* Add Venue Button */}
                         <div className="add-venue-section">
-                            <button 
+                            <button
                                 className="add-venue-btn"
                                 onClick={() => {
                                     setShowAddForm(true);
@@ -400,15 +433,15 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                     <h2>
                                         {editingVenue ? `EDITING VENUE: "${editingVenue.venue_Name}"` : 'CREATING NEW VENUE'}
                                     </h2>
-                                    
+
                                     <form onSubmit={handleSubmit}>
                                         <div className="form-grid">
                                             {/* Image Upload Section */}
                                             <div className="form-group full-width">
                                                 <label>ADD IMAGES (Up to 5 images - JPEG, PNG, GIF, WebP)</label>
-                                                
+
                                                 {/* Drag and Drop Area */}
-                                                <div 
+                                                <div
                                                     className={`drop-zone ${dragging ? 'dragging' : ''} ${uploading ? 'uploading' : ''}`}
                                                     onDragEnter={handleDragEnter}
                                                     onDragLeave={handleDragLeave}
@@ -451,15 +484,15 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                         <div className="image-preview-grid">
                                                             {formData.images.map((image, index) => (
                                                                 <div key={index} className="image-preview-item">
-                                                                    <img 
-                                                                        src={getImageUrl(image)} 
+                                                                    <img
+                                                                        src={getImageUrl(image)}
                                                                         alt={`Venue ${index + 1}`}
                                                                         onError={(e) => {
                                                                             e.target.onerror = null;
                                                                             e.target.src = 'https://via.placeholder.com/150?text=Image+Error';
                                                                         }}
                                                                     />
-                                                                    <button 
+                                                                    <button
                                                                         type="button"
                                                                         className="remove-image-btn"
                                                                         onClick={() => removeImage(index)}
@@ -473,7 +506,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                     </div>
                                                 )}
                                             </div>
-                                            
+
                                             <div className="form-group">
                                                 <label>Name:</label>
                                                 <input
@@ -485,7 +518,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                     required
                                                 />
                                             </div>
-                                            
+
                                             <div className="form-group">
                                                 <label>Contact:</label>
                                                 <input
@@ -496,7 +529,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                     placeholder="Phone number"
                                                 />
                                             </div>
-                                            
+
                                             <div className="form-group">
                                                 <label>Email:</label>
                                                 <input
@@ -507,7 +540,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                     placeholder="Contact email"
                                                 />
                                             </div>
-                                            
+
                                             <div className="form-group">
                                                 <label>Price ($):</label>
                                                 <input
@@ -521,7 +554,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                     step="0.01"
                                                 />
                                             </div>
-                                            
+
                                             <div className="form-group">
                                                 <label>Capacity:</label>
                                                 <input
@@ -534,7 +567,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                     min="1"
                                                 />
                                             </div>
-                                            
+
                                             <div className="form-group full-width">
                                                 <label>Address:</label>
                                                 <input
@@ -546,7 +579,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                     required
                                                 />
                                             </div>
-                                            
+
                                             <div className="form-group full-width">
                                                 <label>Write about your venue.....</label>
                                                 <textarea
@@ -558,17 +591,17 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                 />
                                             </div>
                                         </div>
-                                        
+
                                         <div className="form-actions">
-                                            <button 
-                                                type="button" 
+                                            <button
+                                                type="button"
                                                 className="clear-btn"
                                                 onClick={clearForm}
                                             >
                                                 CLEAR
                                             </button>
-                                            <button 
-                                                type="submit" 
+                                            <button
+                                                type="submit"
                                                 className="submit-btn"
                                                 disabled={uploading}
                                             >
@@ -599,8 +632,8 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                             <div className="venue-images">
                                                 {venue.images && venue.images.length > 0 ? (
                                                     <div className="image-carousel">
-                                                        <img 
-                                                            src={getImageUrl(venue.images[0])} 
+                                                        <img
+                                                            src={getImageUrl(venue.images[0])}
                                                             alt={venue.venue_Name}
                                                             onError={(e) => {
                                                                 e.target.onerror = null;
@@ -619,7 +652,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                     </div>
                                                 )}
                                             </div>
-                                            
+
                                             {/* Venue Info */}
                                             <div className="venue-info">
                                                 <div className="venue-header-info">
@@ -628,7 +661,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                         {venue.is_Available ? 'Available' : 'Unavailable'}
                                                     </span>
                                                 </div>
-                                                
+
                                                 <div className="venue-details">
                                                     <p className="venue-address">
                                                         <strong>📍</strong> {venue.address}
@@ -656,22 +689,22 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                                     )}
                                                     {venue.description && (
                                                         <p className="venue-description">
-                                                            {venue.description.length > 100 
-                                                                ? `${venue.description.substring(0, 100)}...` 
+                                                            {venue.description.length > 100
+                                                                ? `${venue.description.substring(0, 100)}...`
                                                                 : venue.description}
                                                         </p>
                                                     )}
                                                 </div>
-                                                
+
                                                 {/* Action Buttons */}
                                                 <div className="venue-actions">
-                                                    <button 
+                                                    <button
                                                         className="edit-btn"
                                                         onClick={() => handleEditClick(venue)}
                                                     >
                                                         Edit
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         className="delete-btn"
                                                         onClick={() => handleDeleteVenue(venue.venue_ID, venue.venue_Name)}
                                                     >
@@ -683,7 +716,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                     ))}
                                 </div>
                             )}
-                            
+
                             {/* Summary */}
                             {!loading && venues.length > 0 && (
                                 <div className="table-summary">
@@ -691,7 +724,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                                         Showing {venues.length} venues
                                     </div>
                                     <div className="summary-actions">
-                                        <button 
+                                        <button
                                             className="refresh-btn"
                                             onClick={fetchVenues}
                                         >

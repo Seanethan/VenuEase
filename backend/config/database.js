@@ -1,10 +1,11 @@
+// backend/config/database.js
 const mysql = require('mysql2');
 
 // Create connection pool
 const pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: '1439',
+    password: 'root', // Make sure this password is correct!
     database: 'VenuEase',
     waitForConnections: true,
     connectionLimit: 10,
@@ -25,4 +26,6 @@ pool.getConnection((err, connection) => {
     connection.release();
 });
 
+// FIXED: Only ONE export statement
 module.exports = pool.promise();
+// Remove this line: module.exports = promisePool;

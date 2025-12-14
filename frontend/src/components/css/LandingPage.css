@@ -1,4 +1,4 @@
-/* C:\VenuEase\frontend\src\components\css\LandingPage.css */
+/* C:\VenuEase\frontend\src\components\CombinedStyles.css - Merged Version */
 * {
     margin: 0;
     padding: 0;
@@ -148,7 +148,6 @@ input::placeholder {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    margin-top: 10px;
     letter-spacing: 1px;
     text-transform: uppercase;
     display: block;
@@ -559,198 +558,6 @@ input::placeholder {
     opacity: 0.9;
 }
 
-/* ===== ANIMATIONS ===== */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 480px) {
-    .container {
-        max-width: 100%;
-        border-radius: 20px;
-    }
-
-    .form-container {
-        padding: 25px 20px;
-    }
-
-    .header {
-        padding: 30px 20px;
-    }
-
-    .brand-name {
-        font-size: 36px;
-    }
-
-    .back-button {
-        top: 15px;
-        left: 15px;
-        width: 35px;
-        height: 35px;
-        font-size: 20px;
-    }
-
-    input {
-        width: 80%;
-        padding: 12px;
-    }
-
-    .btn {
-        width: 110px;
-        padding: 14px;
-        font-size: 16px;
-    }
-
-    .welcome-text {
-        font-size: 20px;
-    }
-
-    .login-page,
-    .register-page {
-        padding: 15px;
-    }
-
-    .login-page .header,
-    .register-page .header {
-        height: 50px;
-    }
-
-    /* Landing Page Mobile */
-    .hero .container {
-        width: 85%;
-    }
-
-    .hero-content {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-
-    .arrows {
-        position: static;
-        justify-content: center;
-        transform: none;
-        margin-top: 1rem;
-    }
-
-    .card {
-        min-width: calc(80% - 20px);
-    }
-
-    .bottom-container {
-        width: 95%;
-        padding: 1.5rem;
-        bottom: 20px;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-
-    .feature-item {
-        padding: 0;
-        gap: 1rem;
-    }
-
-    .feature-icon {
-        font-size: 2rem;
-    }
-
-    .feature-item h4 {
-        font-size: 1.1rem;
-    }
-}
-
-@media (max-width: 320px) {
-    .brand-name {
-        font-size: 32px;
-    }
-    
-    .welcome-text {
-        font-size: 18px;
-    }
-    
-    .form-container {
-        padding: 20px 15px;
-    }
-    
-    input {
-        width: 90%;
-    }
-
-    .card {
-        min-width: calc(100% - 20px);
-    }
-
-    .arrow {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-    }
-
-    .hero-content h1 {
-        font-size: 24px;
-    }
-
-    .bottom-container {
-        padding: 1rem;
-    }
-
-    .features-grid {
-        gap: 1rem;
-    }
-
-    .feature-icon {
-        font-size: 1.8rem;
-    }
-
-    .feature-item {
-        gap: 0.8rem;
-    }
-}
-
-@media (max-width: 1024px) {
-    .arrows {
-        right: 20px;
-    }
-
-    .arrow {
-        width: 45px;
-        height: 45px;
-        font-size: 22px;
-    }
-}
-
-@media (max-width: 768px) {
-    .card {
-        min-width: calc(80% - 20px);
-    }
-
-    .feature-item h4 {
-        font-size: 1.1rem;
-    }
-}
-
 /* ===== DASHBOARD SPECIFIC STYLES ===== */
 .dashboard {
     min-height: 100vh;
@@ -770,7 +577,7 @@ input::placeholder {
 }
 
 .dashboard .logo h1 {
-    font-size: 24px;
+    font-size: 26px;
     color: #bd9780;
     margin-bottom: 5px;
     text-transform: uppercase;
@@ -1025,8 +832,197 @@ input::placeholder {
     margin: 0 auto;
 }
 
-/* ===== RESPONSIVE DASHBOARD ===== */
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 480px) {
+    .container {
+        max-width: 100%;
+        border-radius: 20px;
+    }
+
+    .form-container {
+        padding: 25px 20px;
+    }
+
+    .header {
+        padding: 30px 20px;
+    }
+
+    .brand-name {
+        font-size: 36px;
+    }
+
+    .back-button {
+        top: 15px;
+        left: 15px;
+        width: 35px;
+        height: 35px;
+        font-size: 20px;
+    }
+
+    input {
+        width: 80%;
+        padding: 12px;
+    }
+
+    .btn {
+        width: 110px;
+        padding: 14px;
+        font-size: 16px;
+    }
+
+    .welcome-text {
+        font-size: 20px;
+    }
+
+    .login-page,
+    .register-page {
+        padding: 15px;
+    }
+
+    .login-page .header,
+    .register-page .header {
+        height: 50px;
+    }
+
+    /* Landing Page Mobile */
+    .hero .container {
+        width: 85%;
+    }
+
+    .hero-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .arrows {
+        position: static;
+        justify-content: center;
+        transform: none;
+        margin-top: 1rem;
+    }
+
+    .card {
+        min-width: calc(80% - 20px);
+    }
+
+    .bottom-container {
+        width: 95%;
+        padding: 1.5rem;
+        bottom: 20px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .feature-item {
+        padding: 0;
+        gap: 1rem;
+    }
+
+    .feature-icon {
+        font-size: 2rem;
+    }
+
+    .feature-item h4 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .brand-name {
+        font-size: 32px;
+    }
+    
+    .welcome-text {
+        font-size: 18px;
+    }
+    
+    .form-container {
+        padding: 20px 15px;
+    }
+    
+    input {
+        width: 90%;
+    }
+
+    .card {
+        min-width: calc(100% - 20px);
+    }
+
+    .arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 24px;
+    }
+
+    .bottom-container {
+        padding: 1rem;
+    }
+
+    .features-grid {
+        gap: 1rem;
+    }
+
+    .feature-icon {
+        font-size: 1.8rem;
+    }
+
+    .feature-item {
+        gap: 0.8rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .arrows {
+        right: 20px;
+    }
+
+    .arrow {
+        width: 45px;
+        height: 45px;
+        font-size: 22px;
+    }
+}
+
 @media (max-width: 768px) {
+    .card {
+        min-width: calc(80% - 20px);
+    }
+
+    .feature-item h4 {
+        font-size: 1.1rem;
+    }
+    
     .dashboard-features .features-grid {
         grid-template-columns: 1fr !important;
         gap: 20px !important;
@@ -1123,4 +1119,18 @@ input::placeholder {
         width: 100%;
         margin: 0 auto;
     }
+}
+
+.profile-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease;
+}
+
+.profile-icon-btn:hover {
+    color: #bd9780;
 }
