@@ -32,30 +32,45 @@ const DashboardOffers = ({ handleBookNow }) => {
         try {
             setLoading(true);
             setError(null);
-            
+
             // Fetch from backend API
             const response = await axios.get('http://localhost:5000/api/venues');
-            
+
+            console.log('API Response:', response.data); // Debug log
+
             // Transform API data to match your component format
-            const transformedOffers = response.data.map(venue => ({
-                id: venue.id,
-                title: venue.title,
-                address: venue.address,
-                description: venue.description,
-                price: venue.price,
-                capacity: venue.capacity,
-                contact_email: venue.contact_email,
-                contact_phone: venue.contact_phone,
-                // Use image property from API or fallback - FIXED IMAGE URL
-                image: venue.image && venue.image !== 'https://via.placeholder.com/400x250?text=No+Image' 
-                    ? venue.image 
-                    : (venue.all_images && venue.all_images.length > 0 
-                        ? venue.all_images[0] 
-                        : 'https://via.placeholder.com/400x250?text=No+Image'),
-                // Store all images for reference
-                all_images: venue.all_images || []
-            }));
-            
+            const transformedOffers = response.data.map(venue => {
+                // Helper function to get full image URL
+                const getFullImageUrl = (imagePath) => {
+                    if (!imagePath) return 'https://via.placeholder.com/400x250?text=No+Image';
+                    if (imagePath.startsWith('http')) return imagePath;
+                    if (imagePath.startsWith('/uploads/')) {
+                        return `http://localhost:5000${imagePath}`;
+                    }
+                    return `http://localhost:5000/uploads/venues/${imagePath}`;
+                };
+
+                // Get all images as full URLs
+                const allImages = (venue.all_images || []).map(img => getFullImageUrl(img));
+                const mainImage = venue.image ? getFullImageUrl(venue.image) :
+                    (allImages.length > 0 ? allImages[0] : 'https://via.placeholder.com/400x250?text=No+Image');
+
+                return {
+                    id: venue.id,
+                    title: venue.title,
+                    address: venue.address,
+                    description: venue.description,
+                    price: venue.price,
+                    capacity: venue.capacity,
+                    contact_email: venue.contact_email,
+                    contact_phone: venue.contact_phone,
+                    image: mainImage,
+                    all_images: allImages,
+                    // Include raw venue data for DashboardVenues
+                    venue_data: venue
+                };
+            });
+
             console.log('Transformed offers:', transformedOffers);
             setOffers(transformedOffers);
             setFilteredOffers(transformedOffers);
@@ -72,15 +87,25 @@ const DashboardOffers = ({ handleBookNow }) => {
     };
 
     // Handle book now click
-    const handleBookNowClick = (offer) => {
-        console.log('Booking offer:', offer);
-        if (handleBookNow) {
-            handleBookNow(offer);
-        } else {
-            // Default booking logic
-            alert(`Booking ${offer.title} - Price: ₱${offer.price}`);
-        }
-    };
+    // In DashboardOffers.jsx, update the handleBookNowClick function:
+const handleBookNowClick = (offer) => {
+    console.log('Booking offer:', offer);
+    if (handleBookNow) {
+        // Pass the complete offer object
+        handleBookNow({
+            id: offer.id,
+            title: offer.title,
+            address: offer.address,
+            description: offer.description,
+            price: offer.price,
+            capacity: offer.capacity,
+            contact_email: offer.contact_email,
+            contact_phone: offer.contact_phone,
+            image: offer.image,
+            all_images: offer.all_images
+        });
+    }
+};
 
     // Refresh offers
     const refreshOffers = () => {
@@ -100,9 +125,9 @@ const DashboardOffers = ({ handleBookNow }) => {
                 <h1 style={{ padding: '25px 40px 10px', margin: 0, fontFamily: "'Playfair Display', serif" }}>
                     Offers
                 </h1>
-                
-                <div className="search-box" style={{ 
-                    margin: '20px 40px', 
+
+                <div className="search-box" style={{
+                    margin: '20px 40px',
                     textAlign: 'right',
                     display: 'flex',
                     justifyContent: 'flex-end',
@@ -113,7 +138,7 @@ const DashboardOffers = ({ handleBookNow }) => {
                         alignItems: 'center',
                         gap: '10px'
                     }}>
-                        <button 
+                        <button
                             onClick={refreshOffers}
                             style={{
                                 padding: '8px 20px',
@@ -133,12 +158,12 @@ const DashboardOffers = ({ handleBookNow }) => {
                         </button>
                     </div>
                 </div>
-                
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    height: '300px' 
+
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '300px'
                 }}>
                     <div>Loading venues...</div>
                 </div>
@@ -152,9 +177,9 @@ const DashboardOffers = ({ handleBookNow }) => {
                 <h1 style={{ padding: '25px 40px 10px', margin: 0, fontFamily: "'Playfair Display', serif" }}>
                     Offers
                 </h1>
-                
-                <div className="search-box" style={{ 
-                    margin: '20px 40px', 
+
+                <div className="search-box" style={{
+                    margin: '20px 40px',
                     textAlign: 'right',
                     display: 'flex',
                     justifyContent: 'flex-end',
@@ -165,8 +190,8 @@ const DashboardOffers = ({ handleBookNow }) => {
                         alignItems: 'center',
                         gap: '10px'
                     }}>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             placeholder="Search venues..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -177,7 +202,7 @@ const DashboardOffers = ({ handleBookNow }) => {
                                 width: '250px'
                             }}
                         />
-                        <button 
+                        <button
                             onClick={refreshOffers}
                             style={{
                                 padding: '8px 20px',
@@ -196,14 +221,14 @@ const DashboardOffers = ({ handleBookNow }) => {
                         </button>
                     </div>
                 </div>
-                
-                <div style={{ 
-                    textAlign: 'center', 
+
+                <div style={{
+                    textAlign: 'center',
                     padding: '40px',
-                    color: '#ff6b6b' 
+                    color: '#ff6b6b'
                 }}>
                     <div>{error}</div>
-                    <button 
+                    <button
                         onClick={refreshOffers}
                         style={{
                             marginTop: '20px',
@@ -227,9 +252,9 @@ const DashboardOffers = ({ handleBookNow }) => {
             <h1 style={{ padding: '25px 40px 10px', margin: 0, fontFamily: "'Playfair Display', serif" }}>
                 Offers ({offers.length} venues)
             </h1>
-            
-            <div className="search-box" style={{ 
-                margin: '20px 40px', 
+
+            <div className="search-box" style={{
+                margin: '20px 40px',
                 textAlign: 'right',
                 display: 'flex',
                 justifyContent: 'flex-end',
@@ -240,8 +265,8 @@ const DashboardOffers = ({ handleBookNow }) => {
                     alignItems: 'center',
                     gap: '10px'
                 }}>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         placeholder="Search venues..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -252,7 +277,7 @@ const DashboardOffers = ({ handleBookNow }) => {
                             width: '250px'
                         }}
                     />
-                    <button 
+                    <button
                         onClick={refreshOffers}
                         style={{
                             padding: '8px 20px',
@@ -282,14 +307,14 @@ const DashboardOffers = ({ handleBookNow }) => {
             </div>
 
             {filteredOffers.length === 0 ? (
-                <div style={{ 
-                    textAlign: 'center', 
+                <div style={{
+                    textAlign: 'center',
                     padding: '40px',
                     color: '#666'
                 }}>
                     {searchQuery ? 'No venues found matching your search.' : 'No venues available at the moment.'}
                     <div style={{ marginTop: '20px' }}>
-                        <button 
+                        <button
                             onClick={refreshOffers}
                             style={{
                                 padding: '10px 20px',
@@ -385,16 +410,16 @@ const DashboardOffers = ({ handleBookNow }) => {
                                     overflow: 'hidden',
                                     marginBottom: '10px'
                                 }}>
-                                    <p style={{ 
-                                        lineHeight: '1.4', 
+                                    <p style={{
+                                        lineHeight: '1.4',
                                         color: '#666',
                                         fontSize: '14px',
                                         margin: 0
                                     }}>
                                         <strong>Address:</strong> {offer.address}
                                     </p>
-                                    <p style={{ 
-                                        lineHeight: '1.4', 
+                                    <p style={{
+                                        lineHeight: '1.4',
                                         color: '#666',
                                         fontSize: '14px',
                                         margin: '8px 0 0 0',
@@ -407,8 +432,8 @@ const DashboardOffers = ({ handleBookNow }) => {
                                         <strong>Description:</strong> {truncateDescription(offer.description, 100)}
                                     </p>
                                     {offer.capacity && (
-                                        <p style={{ 
-                                            lineHeight: '1.4', 
+                                        <p style={{
+                                            lineHeight: '1.4',
                                             color: '#666',
                                             fontSize: '14px',
                                             margin: '8px 0 0 0'

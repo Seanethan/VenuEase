@@ -64,48 +64,38 @@ const parseImagesField = (images) => {
     try {
         // If it's already an array, return it
         if (Array.isArray(images)) {
-            console.log('✅ Images is already array');
-            return images;
+            return images.map(img => {
+                // Convert full URLs to relative paths if needed
+                if (img.startsWith('http://localhost:5000')) {
+                    return img.replace('http://localhost:5000', '');
+                }
+                return img;
+            });
         }
         
         // If it's a string, try to parse it
         if (typeof images === 'string') {
-            // Trim and check if it's empty
             const trimmed = images.trim();
             if (!trimmed || trimmed === 'null' || trimmed === 'undefined') {
                 return [];
             }
             
-            // Try to parse as JSON
             try {
                 const parsed = JSON.parse(trimmed);
                 if (Array.isArray(parsed)) {
-                    console.log('✅ Successfully parsed JSON array');
-                    return parsed;
-                } else if (typeof parsed === 'string') {
-                    // Single image path
-                    console.log('✅ Single image path');
-                    return [parsed];
+                    return parsed.map(img => {
+                        if (img.startsWith('http://localhost:5000')) {
+                            return img.replace('http://localhost:5000', '');
+                        }
+                        return img;
+                    });
                 }
             } catch (jsonError) {
-                console.log('⚠️ JSON parse failed, trying other formats');
-                
-                // Check if it's a single image path starting with /uploads/
-                if (trimmed.startsWith('/uploads/')) {
-                    console.log('✅ Single upload path detected');
-                    return [trimmed];
-                }
-                
-                // Try comma separation
-                if (trimmed.includes(',')) {
-                    const parts = trimmed.split(',').map(img => img.trim()).filter(img => img);
-                    console.log('✅ Comma-separated values:', parts);
-                    return parts;
-                }
-                
-                // Single value
-                console.log('✅ Single value');
-                return [trimmed];
+                // Not JSON, return as single item array
+                const img = trimmed.startsWith('http://localhost:5000') 
+                    ? trimmed.replace('http://localhost:5000', '')
+                    : trimmed;
+                return [img];
             }
         }
     } catch (error) {
@@ -570,21 +560,29 @@ app.get('/api/admin/venues/stats', async (req, res) => {
 
 app.post('/api/admin/venues/upload', upload.array('images', 5), async (req, res) => {
     try {
+        console.log('📤 Upload endpoint called');
+        
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ error: 'No files uploaded' });
         }
         
+        // Generate relative image URLs (without the full domain)
         const imageUrls = req.files.map(file => {
+            // Return relative path ONLY
             return `/uploads/venues/${file.filename}`;
         });
         
+        console.log('Returning relative image URLs:', imageUrls);
+        
         res.json({
             message: 'Files uploaded successfully',
-            images: imageUrls
+            images: imageUrls  // These should be relative paths like '/uploads/venues/filename.jpg'
         });
     } catch (error) {
-        console.error('Error uploading files:', error);
-        res.status(500).json({ error: 'Error uploading files: ' + error.message });
+        console.error('❌ Error uploading files:', error);
+        res.status(500).json({ 
+            error: 'Error uploading files: ' + error.message
+        });
     }
 });
 
@@ -1585,6 +1583,63 @@ app.get('/api/debug/uploads', (req, res) => {
                 path: `/uploads/venues/${file}`,
                 fullUrl: `http://localhost:5000/uploads/venues/${file}`
             }))
+        });
+    });
+});
+
+
+
+// Test image upload endpoint
+app.post('/api/test/upload-debug', upload.single('image'), (req, res) => {
+    try {
+        console.log('🔍 Debug upload test');
+        console.log('File:', req.file);
+        console.log('File path:', req.file.path);
+        console.log('File filename:', req.file.filename);
+        
+        const imageUrl = `/uploads/venues/${req.file.filename}`;
+        
+        res.json({
+            success: true,
+            message: 'File uploaded successfully',
+            file: req.file,
+            imageUrl: imageUrl,
+            fullUrl: `http://localhost:5000${imageUrl}`
+        });
+    } catch (error) {
+        console.error('Debug upload error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// List all uploaded files
+app.get('/api/uploads/list', (req, res) => {
+    const uploadsDir = path.join(__dirname, 'public', 'uploads', 'venues');
+    
+    fs.readdir(uploadsDir, (err, files) => {
+        if (err) {
+            return res.status(500).json({ 
+                error: 'Cannot read uploads directory',
+                message: err.message 
+            });
+        }
+        
+        const fileDetails = files.map(file => {
+            const filePath = path.join(uploadsDir, file);
+            const stats = fs.statSync(filePath);
+            return {
+                name: file,
+                size: stats.size,
+                created: stats.birthtime,
+                url: `/uploads/venues/${file}`,
+                fullUrl: `http://localhost:5000/uploads/venues/${file}`
+            };
+        });
+        
+        res.json({
+            directory: uploadsDir,
+            totalFiles: files.length,
+            files: fileDetails
         });
     });
 });

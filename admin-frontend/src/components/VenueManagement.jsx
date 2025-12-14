@@ -44,10 +44,10 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
             // Transform the venue data to include images properly
             const formattedVenues = response.data.map(venue => {
                 const venueImages = venue.images || [];
-                
+
                 return {
                     ...venue,
-                    images: venueImages.map(img => 
+                    images: venueImages.map(img =>
                         img.startsWith('http') ? img : `http://localhost:5000${img}`
                     )
                 };
@@ -141,6 +141,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
     };
 
     // Upload images to server
+    // Upload images to server
     const uploadImages = async (files) => {
         if (files.length === 0) return;
 
@@ -152,21 +153,41 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
                 formDataObj.append('images', file);
             });
 
-            // FIXED: Changed from GET to POST
+            // Upload files to server
             const response = await axios.post('/api/admin/venues/upload', formDataObj, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
-            // Add uploaded images to form data
-            setFormData(prev => ({
-                ...prev,
-                images: [...prev.images, ...response.data.images]
-            }));
+            console.log('Upload response:', response.data);
+
+            // FIXED: Ensure we get the right image URLs
+            if (response.data.images && Array.isArray(response.data.images)) {
+                // Map the uploaded image URLs to ensure they're correct
+                const newImages = response.data.images.map(img => {
+                    // Ensure the URL format is correct
+                    if (img.startsWith('http://localhost:5000')) {
+                        // Extract just the path part for database storage
+                        return img.replace('http://localhost:5000', '');
+                    }
+                    return img; // Already a relative path
+                });
+
+                // Add uploaded images to form data
+                setFormData(prev => ({
+                    ...prev,
+                    images: [...prev.images, ...newImages]
+                }));
+
+                console.log('Added images:', newImages);
+            } else {
+                alert('Upload failed: No image URLs returned from server');
+            }
 
         } catch (error) {
             console.error('Error uploading images:', error);
+            console.error('Error response:', error.response?.data);
             alert(error.response?.data?.error || 'Failed to upload images. Please try again.');
         } finally {
             setUploading(false);
@@ -222,6 +243,8 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
     };
 
     // Submit form (create or update)
+    // In your VenueManagement component, update the handleSubmit function:
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -232,37 +255,33 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
         }
 
         try {
-            // FIXED: Changed from absolute URLs to relative paths
+            // For BOTH create and update, ensure we have proper image URLs
+            const processedImages = formData.images.map(img => {
+                // If it's already a full URL, use it
+                if (img.startsWith('http')) return img;
+                // If it starts with /uploads/, it's correct
+                if (img.startsWith('/uploads/')) return img;
+                // Otherwise, prepend /uploads/venues/
+                return `/uploads/venues/${img}`;
+            });
+
+            const venueData = {
+                venue_Name: formData.venue_Name,
+                address: formData.address,
+                capacity: parseInt(formData.capacity),
+                price: parseFloat(formData.price),
+                contact_Email: formData.contact_Email,
+                contact_Phone: formData.contact_Phone,
+                description: formData.description,
+                images: processedImages, // This should be an array of image URLs
+                is_Available: editingVenue ? editingVenue.is_Available : true
+            };
+
             if (editingVenue) {
-                // For update, include images in the request
-                const updateData = {
-                    venue_Name: formData.venue_Name,
-                    address: formData.address,
-                    capacity: parseInt(formData.capacity),
-                    price: parseFloat(formData.price),
-                    contact_Email: formData.contact_Email,
-                    contact_Phone: formData.contact_Phone,
-                    description: formData.description,
-                    images: formData.images || [],
-                    is_Available: editingVenue.is_Available
-                };
-                
-                await axios.put(`/api/admin/venues/${editingVenue.venue_ID}`, updateData);
+                await axios.put(`/api/admin/venues/${editingVenue.venue_ID}`, venueData);
                 alert('Venue updated successfully!');
             } else {
-                // For create, include images in the request
-                const newVenueData = {
-                    venue_Name: formData.venue_Name,
-                    address: formData.address,
-                    capacity: parseInt(formData.capacity),
-                    price: parseFloat(formData.price),
-                    contact_Email: formData.contact_Email,
-                    contact_Phone: formData.contact_Phone,
-                    description: formData.description,
-                    images: formData.images || []
-                };
-                
-                await axios.post('/api/admin/venues', newVenueData);
+                await axios.post('/api/admin/venues', venueData);
                 alert('Venue created successfully!');
             }
 
@@ -272,6 +291,7 @@ const VenueManagement = ({ admin, onLogout, onViewDashboard, onViewUsers, onView
             clearForm();
         } catch (error) {
             console.error('Error saving venue:', error);
+            console.error('Error details:', error.response?.data);
             alert(error.response?.data?.error || 'Failed to save venue. Please try again.');
         }
     };

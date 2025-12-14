@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Add useEffect
 import './css/LandingPage.css';
 import DashboardHome from './DashboardHome.jsx';
 import DashboardOffers from './DashboardOffers.jsx';
@@ -8,10 +8,13 @@ import DashboardPayment from './DashboardPayment.jsx';
 import QRCodeModal from './QRCodeModal.jsx';
 import PaymentSuccessModal from './PaymentSuccessModal.jsx';
 import { FaUserCircle } from 'react-icons/fa';
+import axios from 'axios'; // Add axios
 
 const Dashboard = ({ user, onLogout }) => {
     const [activeTab, setActiveTab] = useState('home');
     const [selectedVenue, setSelectedVenue] = useState(null);
+    const [selectedVenueId, setSelectedVenueId] = useState(null); // Add this
+    const [selectedVenueData, setSelectedVenueData] = useState(null); // Add this
     const [bookingData, setBookingData] = useState({
         fromDate: '',
         toDate: '',
@@ -23,61 +26,59 @@ const Dashboard = ({ user, onLogout }) => {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
 
-    // Mock data for events
-    const recentEvents = [
-        {
-            id: 1,
-            title: "Wedding Celebration",
-            image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium."
-        },
-        {
-            id: 2,
-            title: "Corporate Conference",
-            image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            description: "Another detailed description about the corporate conference event with additional information about the venue, speakers, and schedule."
+    // Fetch venue details when selectedVenueId changes
+    useEffect(() => {
+        if (selectedVenueId) {
+            fetchVenueDetails(selectedVenueId);
         }
-    ];
+    }, [selectedVenueId]);
 
-    // Updated wallets with QR codes
-    const wallets = [
-        { 
-            id: 1, 
-            name: "GCash", 
-            number: "+63 000 000 0000", 
-            icon: "GC",
-            qrCode: "/gcash-qr.png",
-            instructions: "Scan this QR code using GCash app to pay"
-        },
-        { 
-            id: 2, 
-            name: "PayPal", 
-            number: "user@example.com", 
-            icon: "PP",
-            qrCode: "/paypal-qr.png",
-            instructions: "Scan this QR code using PayPal app to pay"
-        },
-        { 
-            id: 3, 
-            name: "Maya", 
-            number: "+63 000 000 0000", 
-            icon: "MP",
-            qrCode: "/maya_qr_for_payment.jpg",
-            instructions: "Scan this QR code using Maya app to pay"
+    const fetchVenueDetails = async (venueId) => {
+        try {
+            console.log(`📥 Fetching details for venue ID: ${venueId}`);
+            const response = await axios.get(`http://localhost:5000/api/venues/${venueId}`);
+            console.log('Venue details fetched:', response.data);
+            setSelectedVenueData(response.data);
+        } catch (error) {
+            console.error('❌ Error fetching venue details:', error);
+            // Keep using the basic venue data from offers
         }
-    ];
+    };
 
     const handleBookNow = (offer) => {
         console.log('Booking offer from Dashboard:', offer);
-        setSelectedVenue(offer);
+        
+        // Set the basic venue info from offers
+        setSelectedVenue({
+            id: offer.id,
+            title: offer.title || offer.venue_Name,
+            address: offer.address,
+            description: offer.description,
+            price: offer.price,
+            capacity: offer.capacity,
+            contact_email: offer.contact_email,
+            contact_phone: offer.contact_phone,
+            image: offer.image
+        });
+        
+        // Also set the venue ID to fetch complete details
+        setSelectedVenueId(offer.id);
+        
+        // Switch to venues tab
         setActiveTab('venues');
     };
 
-    const startBooking = (offer) => {
-        setSelectedVenue(offer);
+    const startBooking = (venue) => {
+        console.log('Starting booking for:', venue);
+        
+        // Use the detailed venue data if available, otherwise use what we have
+        const venueToBook = selectedVenueData || venue || selectedVenue;
+        
+        setSelectedVenue(venueToBook);
         setActiveTab('booking');
     };
 
+    // Rest of your existing functions remain the same...
     const cancelBooking = () => {
         if (window.confirm("Are you sure you want to cancel this booking?")) {
             setBookingData({
@@ -87,6 +88,8 @@ const Dashboard = ({ user, onLogout }) => {
                 toTime: ''
             });
             setSelectedVenue(null);
+            setSelectedVenueId(null);
+            setSelectedVenueData(null);
             setActiveTab('venues');
         }
     };
@@ -125,6 +128,8 @@ const Dashboard = ({ user, onLogout }) => {
                 toTime: ''
             });
             setSelectedVenue(null);
+            setSelectedVenueId(null);
+            setSelectedVenueData(null);
             setActiveTab('venues');
         }, 3000);
     };
@@ -143,12 +148,14 @@ const Dashboard = ({ user, onLogout }) => {
             toTime: ''
         });
         setSelectedVenue(null);
+        setSelectedVenueId(null);
+        setSelectedVenueData(null);
         setActiveTab('venues');
     };
 
     return (
         <div className="dashboard">
-            {/* Header */}
+            {/* Header - Keep as is */}
             <header className="header">
                 <div className="container1">
                     <div className="logo">
@@ -181,6 +188,8 @@ const Dashboard = ({ user, onLogout }) => {
                     onClick={() => {
                         setActiveTab('home');
                         setSelectedVenue(null);
+                        setSelectedVenueId(null);
+                        setSelectedVenueData(null);
                     }}
                     style={{
                         background: 'none',
@@ -199,6 +208,8 @@ const Dashboard = ({ user, onLogout }) => {
                     onClick={() => {
                         setActiveTab('offers');
                         setSelectedVenue(null);
+                        setSelectedVenueId(null);
+                        setSelectedVenueData(null);
                     }}
                     style={{
                         background: 'none',
@@ -246,13 +257,14 @@ const Dashboard = ({ user, onLogout }) => {
                 )}
                 {activeTab === 'venues' && (
                     <DashboardVenues 
-                        selectedVenue={selectedVenue}
+                        selectedVenue={selectedVenueData || selectedVenue}
+                        selectedVenueId={selectedVenueId}
                         startBooking={startBooking}
                     />
                 )}
                 {activeTab === 'booking' && (
                     <DashboardBooking 
-                        selectedVenue={selectedVenue}
+                        selectedVenue={selectedVenueData || selectedVenue}
                         bookingData={bookingData}
                         setBookingData={setBookingData}
                         cancelBooking={cancelBooking}
@@ -261,7 +273,7 @@ const Dashboard = ({ user, onLogout }) => {
                 )}
                 {activeTab === 'payment' && (
                     <DashboardPayment 
-                        selectedVenue={selectedVenue}
+                        selectedVenue={selectedVenueData || selectedVenue}
                         selectedWallet={selectedWallet}
                         setSelectedWallet={setSelectedWallet}
                         backToBooking={backToBooking}
@@ -275,7 +287,7 @@ const Dashboard = ({ user, onLogout }) => {
             {showQRModal && selectedPaymentMethod && (
                 <QRCodeModal 
                     selectedPaymentMethod={selectedPaymentMethod}
-                    selectedVenue={selectedVenue}
+                    selectedVenue={selectedVenueData || selectedVenue}
                     closeQRModal={closeQRModal}
                     confirmPayment={confirmPayment}
                 />
@@ -283,7 +295,7 @@ const Dashboard = ({ user, onLogout }) => {
 
             {showPaymentModal && (
                 <PaymentSuccessModal 
-                    selectedVenue={selectedVenue}
+                    selectedVenue={selectedVenueData || selectedVenue}
                     closePaymentModal={closePaymentModal}
                 />
             )}
